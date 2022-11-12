@@ -1785,11 +1785,10 @@ fig_ticket_ecomm.update_traces(textfont_size=10)
 
 
 
-dash_app = Dash(__name__)
+app = Dash(__name__)
 
-app = dash_app.server
 
-dash_app.layout = html.Div([
+app.layout = html.Div([
     
 
     html.Div([
