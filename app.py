@@ -2240,7 +2240,7 @@ dash_app.layout = html.Div([
 ])
    
 if __name__ == '__main__':
-    dash_app.run_server(debug=False)
+    dash_app.run_server(debug=True)
 
 
 # In[ ]:
