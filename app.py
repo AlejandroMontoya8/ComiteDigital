@@ -1785,11 +1785,11 @@ fig_ticket_ecomm.update_traces(textfont_size=10)
 
 
 
-app = Dash(__name__)
+dash_app = Dash(__name__)
 
-server = app.server
+app = dash_app.server
 
-app.layout = html.Div([
+dash_app.layout = html.Div([
     
 
     html.Div([
@@ -2240,7 +2240,7 @@ app.layout = html.Div([
 ])
    
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    dash_app.run_server(debug=False)
 
 
 # In[ ]:
