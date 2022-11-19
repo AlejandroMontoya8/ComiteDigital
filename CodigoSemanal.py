@@ -247,6 +247,51 @@ participacionxciudad["Prt Cali"] = np.round(participacionxciudad["Prt Cali"]*100
 participacionxciudad["Prt Medellín"] = np.round(participacionxciudad["Prt Medellín"]*100,decimals =1)
 participacionxciudad["Prt Otras ciudades"] = np.round(participacionxciudad["Prt Otras ciudades"]*100,decimals =1)
 
+saltos_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"])
+for the_file in os.listdir(r"Saltos OMS Q3 2021"):
+    archivo_subida = os.path.join(r"Saltos OMS Q3 2021",the_file) 
+    saltos_parcial=pd.read_csv(archivo_subida,sep=",")
+    columnas_saltos= ["RN","ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID","BLANCOI","BLANCOII"]  
+    saltos_parcial.columns=columnas_saltos
+    saltos_parcial=saltos_parcial.drop(0,axis=0)
+    print(the_file)
+    saltos_parcial=saltos_parcial[["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"]]
+    saltos_total = pd.concat([saltos_total,saltos_parcial],axis=0)
+    
+saltos_total["Tipo_Salto"] = "Sin tipo"
+
+saltos_total.loc[(saltos_total.EXTN_SHORT.isin(["PCNCL","CNCL","BO"])) & (~saltos_total.ASSIGNED_TO_USER_ID.isnull()),"Tipo_Salto"]="Quiebre"
+saltos_total.loc[(saltos_total.EXTN_SHORT.isnull()) & (saltos_total.ASSIGNED_TO_USER_ID.isnull()) ,"Tipo_Salto"]="Tiempo"
+
+saltos_total = saltos_total[saltos_total["Tipo_Salto"]!="Sin tipo"]
+
+
+resumen_total_ciudad_saltos = pd.merge(resumen_total_ciudad,saltos_total,left_on="ORDER_NO",right_on="ORDER_NO",how="left")
+
+resumen_total_ciudad_saltos = resumen_total_ciudad_saltos[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
+       'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE', 'EXTN_ET_FULFILMENT',
+       'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden', 'Mes_Orden', 
+       'Semana_Orden','DiaSemana_Orden','Hora_Orden', 'SHIPNODE_KEY2', 'COD_SUC',
+       'CIUDAD_MUNICIPIO', 'Localidad', 'CiudadB',
+       'estado2', 'Tipo_Salto']]
+
+resumen_total_ciudad_saltos["Tipo_Salto2"] = "Sin Salto"
+resumen_total_ciudad_saltos.loc[resumen_total_ciudad_saltos["Tipo_Salto"] == "Quiebre","Tipo_Salto2"] = "Quiebre"
+resumen_total_ciudad_saltos.loc[resumen_total_ciudad_saltos["Tipo_Salto"] == "Tiempo","Tipo_Salto2"] = "Tiempo"
+
+Porcentaje_saltos_tipo = pd.pivot_table(resumen_total_ciudad_saltos,index=["CiudadB","Semana_Orden"],columns=["Tipo_Salto2"],values=["ORDER_NO"],aggfunc = 'count',fill_value = 0)
+Porcentaje_saltos_tipo[('ORDER_NO','%Saltos General')] = (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')]) / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
+Porcentaje_saltos_tipo[('ORDER_NO','%Saltos Quiebre')] = Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')]  / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
+Porcentaje_saltos_tipo[('ORDER_NO','%Saltos Tiempo')] = Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')]  / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
+
+Porcentaje_saltos_tipo = Porcentaje_saltos_tipo.reset_index()
+Porcentaje_saltos_tipo.columns = ["Ciudad","Semana_Orden","Quiebre","Sin Salto","Tiempo","Porc Saltos General","Porc Saltos Quiebre","Porc Saltos Tiempo"]
+
+Porcentaje_saltos_tipo["Porc Saltos General"] = np.round(Porcentaje_saltos_tipo["Porc Saltos General"]*100,decimals =1)
+Porcentaje_saltos_tipo["Porc Saltos Quiebre"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Quiebre"]*100,decimals =1)
+Porcentaje_saltos_tipo["Porc Saltos Tiempo"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Tiempo"]*100,decimals =1)
+
+
 fmedica_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","ORDER_DATE","DOCUMENT_TYPE","ENTRY_TYPE","PRESCRIPTION_NAME","ENTERPRISE_KEY"])
 for the_file in os.listdir(r"F.Medica OMS"):
     
@@ -782,65 +827,6 @@ cobro_canal_m["Mostrador"] =np.round(cobro_canal_m["Mostrador"]/1000000,decimals
 cobro_canal_m["OMS"] = np.round(cobro_canal_m["OMS"]/1000000,decimals=3)
 cobro_canal_m["Total_Cobro"] = np.round(cobro_canal_m["Total_Cobro"]/1000000,decimals=3)
 
-saltos_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"])
-for the_file in os.listdir(r"Saltos OMS Q3 2021"):
-    archivo_subida = os.path.join(r"Saltos OMS Q3 2021",the_file) 
-    saltos_parcial=pd.read_csv(archivo_subida,sep=",")
-    columnas_saltos= ["RN","ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID","BLANCOI","BLANCOII"]  
-    saltos_parcial.columns=columnas_saltos
-    saltos_parcial=saltos_parcial.drop(0,axis=0)
-    print(the_file)
-    saltos_parcial=saltos_parcial[["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"]]
-    saltos_total = pd.concat([saltos_total,saltos_parcial],axis=0)
-    
-saltos_total["Tipo_Salto"] = "Sin tipo"
-
-saltos_total.loc[(saltos_total.EXTN_SHORT.isin(["PCNCL","CNCL","BO"])) & (~saltos_total.ASSIGNED_TO_USER_ID.isnull()),"Tipo_Salto"]="Quiebre"
-saltos_total.loc[(saltos_total.EXTN_SHORT.isnull()) & (saltos_total.ASSIGNED_TO_USER_ID.isnull()) ,"Tipo_Salto"]="Tiempo"
-
-saltos_total = saltos_total[saltos_total["Tipo_Salto"]!="Sin tipo"]
-
-
-resumen_total_ciudad_saltos = pd.merge(resumen_total_ciudad,saltos_total,left_on="ORDER_NO",right_on="ORDER_NO",how="left")
-
-resumen_total_ciudad_saltos = resumen_total_ciudad_saltos[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
-       'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE', 'EXTN_ET_FULFILMENT',
-       'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden', 'Mes_Orden', 
-       'Semana_Orden','DiaSemana_Orden','Hora_Orden', 'SHIPNODE_KEY2', 'COD_SUC',
-       'CIUDAD_MUNICIPIO', 'Localidad', 'CiudadB',
-       'estado2', 'Tipo_Salto']]
-
-resumen_total_ciudad_saltos["Tipo_Salto2"] = "Sin Salto"
-resumen_total_ciudad_saltos.loc[resumen_total_ciudad_saltos["Tipo_Salto"] == "Quiebre","Tipo_Salto2"] = "Quiebre"
-resumen_total_ciudad_saltos.loc[resumen_total_ciudad_saltos["Tipo_Salto"] == "Tiempo","Tipo_Salto2"] = "Tiempo"
-
-Porcentaje_saltos_tipo = pd.pivot_table(resumen_total_ciudad_saltos,index=["CiudadB","Semana_Orden"],columns=["Tipo_Salto2"],values=["ORDER_NO"],aggfunc = 'count')
-Porcentaje_saltos_tipo[('ORDER_NO','%Saltos General')] = (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')]) / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
-Porcentaje_saltos_tipo[('ORDER_NO','%Saltos Quiebre')] = Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')]  / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
-Porcentaje_saltos_tipo[('ORDER_NO','%Saltos Tiempo')] = Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')]  / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
-
-resumen_total_ciudad_saltos = resumen_total_ciudad_saltos[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
-       'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE', 'EXTN_ET_FULFILMENT',
-       'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden', 'Mes_Orden', ####Corregir esta parte
-       'Semana_Orden','DiaSemana_Orden','Hora_Orden', 'SHIPNODE_KEY2', 'COD_SUC',
-       'CIUDAD_MUNICIPIO', 'Localidad', 'CiudadB',
-       'estado2', 'Tipo_Salto']]
-
-resumen_total_ciudad_saltos["Tipo_Salto2"] = "Sin Salto"
-resumen_total_ciudad_saltos.loc[resumen_total_ciudad_saltos["Tipo_Salto"] == "Quiebre","Tipo_Salto2"] = "Quiebre"
-resumen_total_ciudad_saltos.loc[resumen_total_ciudad_saltos["Tipo_Salto"] == "Tiempo","Tipo_Salto2"] = "Tiempo"
-
-Porcentaje_saltos_tipo = pd.pivot_table(resumen_total_ciudad_saltos,index=["CiudadB","Semana_Orden"],columns=["Tipo_Salto2"],values=["ORDER_NO"],aggfunc = 'count')
-Porcentaje_saltos_tipo[('ORDER_NO','%Saltos General')] = (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')]) / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
-Porcentaje_saltos_tipo[('ORDER_NO','%Saltos Quiebre')] = Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')]  / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
-Porcentaje_saltos_tipo[('ORDER_NO','%Saltos Tiempo')] = Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')]  / (Porcentaje_saltos_tipo[('ORDER_NO','Quiebre')] + Porcentaje_saltos_tipo[('ORDER_NO','Tiempo')] + Porcentaje_saltos_tipo[('ORDER_NO','Sin Salto')]  )
-
-Porcentaje_saltos_tipo = Porcentaje_saltos_tipo.reset_index()
-Porcentaje_saltos_tipo.columns = ["Ciudad","Semana_Orden","Quiebre","Sin Salto","Tiempo","Porc Saltos General","Porc Saltos Quiebre","Porc Saltos Tiempo"]
-
-Porcentaje_saltos_tipo["Porc Saltos General"] = np.round(Porcentaje_saltos_tipo["Porc Saltos General"]*100,decimals =1)
-Porcentaje_saltos_tipo["Porc Saltos Quiebre"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Quiebre"]*100,decimals =1)
-Porcentaje_saltos_tipo["Porc Saltos Tiempo"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Tiempo"]*100,decimals =1)
 
 bogotaprimerRFBP= tiempo_alistamiento1er[tiempo_alistamiento1er["Ciudad"]=="Bogotá"]
 bquillaprimerRFBP= tiempo_alistamiento1er[tiempo_alistamiento1er["Ciudad"]=="Barranquilla"]
@@ -1735,16 +1721,16 @@ app.layout = html.Div([
                     dcc.Graph(id="TotalBog",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
             html.Div([
                 html.H3("Barranquilla"),
-                    dcc.Graph(id="TotalBog2",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
+                    dcc.Graph(id="TotalBquilla",figure = fig_Ttotal_nofiltro_bquilla)],className = 'create_container2'),
             html.Div([
                 html.H3("Cali"),
-                dcc.Graph(id="TotalBog3",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
+                dcc.Graph(id="TotalCali",figure = fig_Ttotal_nofiltro_cali)],className = 'create_container2'),
             html.Div([
                 html.H3("Medellín"),
-                dcc.Graph(id="TotalBog4",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2'),
+                dcc.Graph(id="TotalMed",figure = fig_Ttotal_nofiltro_med)], className = 'create_container2'),
             html.Div([
                 html.H3("Otras ciudades"),
-                dcc.Graph(id="TotalBog5",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2')
+                dcc.Graph(id="TotalOtros",figure = fig_Ttotal_nofiltro_otros)], className = 'create_container2')
             
  
         ],className='contenedor-graficos')
