@@ -1121,7 +1121,7 @@ fig_Ttotal_nofiltro_bog = go.Figure()
 fig_Ttotal_nofiltro_bog.add_trace(go.Scatter(x=bogota_Total["Semana_Orden"],y=bogota_Total["SameDayCall"],name ="Call Center",mode="lines+markers+text",text=bogota_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_bog.add_trace(go.Scatter(x=bogota_Total["Semana_Orden"],y=bogota_Total["SameDayEcomm"],name ="Ecommerce",mode="lines+markers+text",text=bogota_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_bog.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_bog.update_yaxes(range=[40,130], title ="Min")
+fig_Ttotal_nofiltro_bog.update_yaxes(range=[20,100], title ="Min")
 fig_Ttotal_nofiltro_bog.update_xaxes(dtick = 1, title = "Semanas")
 fig_Ttotal_nofiltro_bog.update_traces(textfont_size=10)
 
@@ -1129,7 +1129,7 @@ fig_Ttotal_nofiltro_bquilla = go.Figure()
 fig_Ttotal_nofiltro_bquilla.add_trace(go.Scatter(x=bquilla_Total["Semana_Orden"],y=bquilla_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=bquilla_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_bquilla.add_trace(go.Scatter(x=bquilla_Total["Semana_Orden"],y=bquilla_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=bquilla_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_bquilla.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)',uniformtext_minsize=18)
-fig_Ttotal_nofiltro_bquilla.update_yaxes(range=[40,130], title ="Min")
+fig_Ttotal_nofiltro_bquilla.update_yaxes(range=[20,100], title ="Min")
 fig_Ttotal_nofiltro_bquilla.update_xaxes(dtick = 1, title ="Semanas")
 fig_Ttotal_nofiltro_bquilla.update_traces(textfont_size=10)
 
@@ -1137,7 +1137,7 @@ fig_Ttotal_nofiltro_cali = go.Figure()
 fig_Ttotal_nofiltro_cali.add_trace(go.Scatter(x=cali_Total["Semana_Orden"],y=cali_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=cali_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_cali.add_trace(go.Scatter(x=cali_Total["Semana_Orden"],y=cali_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=cali_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_cali.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_cali.update_yaxes(range=[40,130],title="Min")
+fig_Ttotal_nofiltro_cali.update_yaxes(range=[20,100],title="Min")
 fig_Ttotal_nofiltro_cali.update_xaxes(dtick = 1, title ="Semanas")
 fig_Ttotal_nofiltro_cali.update_traces(textfont_size=10)
 
@@ -1145,7 +1145,7 @@ fig_Ttotal_nofiltro_med = go.Figure()
 fig_Ttotal_nofiltro_med.add_trace(go.Scatter(x=medellin_Total["Semana_Orden"],y=medellin_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=medellin_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_med.add_trace(go.Scatter(x=medellin_Total["Semana_Orden"],y=medellin_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=medellin_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_med.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_med.update_yaxes(range=[40,130],title="Min")
+fig_Ttotal_nofiltro_med.update_yaxes(range=[20,100],title="Min")
 fig_Ttotal_nofiltro_med.update_xaxes(dtick = 1, title ="Semanas")
 fig_Ttotal_nofiltro_med.update_traces(textfont_size=10)
 
@@ -1154,7 +1154,7 @@ fig_Ttotal_nofiltro_otros = go.Figure()
 fig_Ttotal_nofiltro_otros.add_trace(go.Scatter(x=otrasciudades_Total["Semana_Orden"],y=otrasciudades_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=otrasciudades_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_otros.add_trace(go.Scatter(x=otrasciudades_Total["Semana_Orden"],y=otrasciudades_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=otrasciudades_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_otros.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_otros.update_yaxes(range=[40,130], title = "Min")
+fig_Ttotal_nofiltro_otros.update_yaxes(range=[20,100], title = "Min")
 fig_Ttotal_nofiltro_otros.update_xaxes(dtick = 1, title = "Semanas")
 fig_Ttotal_nofiltro_otros.update_traces(textfont_size=10)
 
@@ -2340,9 +2340,9 @@ if __name__ == '__main__':
 # In[ ]:
 
 
-df_tiempo_total_filtro.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\tiempo_total")
-inicioalistamiento_mas_antiguo_final.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\alistamiento_1rfbp")
-inicioalistamiento_mas_reciente_final.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\alistamiento_ultrfbp")
+df_tiempo_total_filtro.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\tiempo_total.xlsx")
+inicioalistamiento_mas_antiguo_final.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\alistamiento_1rfbp.xlsx")
+inicioalistamiento_mas_reciente_final.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\alistamiento_ultrfbp.xlsx")
 
 
 # In[ ]:
