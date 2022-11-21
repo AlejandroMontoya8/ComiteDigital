@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[31]:
+# In[2]:
 
 
 import pandas as pd
@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
-# In[32]:
+# In[3]:
 
 
 resumen_total = pd.DataFrame(columns=["ORDER_NO","ORDER_DATE","ENTRY_TYPE","LEVEL_OF_SERVICE","STATUS_NAME","EXTN_ORG_REQ_SHIP_DATE","EXTN_ET_FULFILMENT","SHIPNODE_KEY"])
@@ -29,7 +29,7 @@ for the_file in os.listdir(r"Resumen OMS Q3 2021"):
     resumen_total = pd.concat([resumen_total,resumen_parcial],axis=0)
 
 
-# In[33]:
+# In[4]:
 
 
 resumen_total["ORDER_DATE"] = pd.to_datetime(resumen_total["ORDER_DATE"],format="%Y-%m-%d %H:%M:%S")
@@ -68,7 +68,7 @@ semanas = [39,40,41,42,43,44,45]
 resumen_total = resumen_total[resumen_total.Semana_Orden.isin(semanas)]
 
 
-# In[34]:
+# In[5]:
 
 
 venta = resumen_total["ORIGINAL_TOTAL_AMOUNT"]
@@ -145,7 +145,7 @@ ordenes_ret_m.columns = ["Mes_Orden","Customer Picked Up"]
 ordenes_ret_m = ordenes_ret_m[ordenes_ret_m.Mes_Orden.isin(meses)]
 
 
-# In[35]:
+# In[6]:
 
 
 resumen_total_ciudad = resumen_total[~resumen_total.SHIPNODE_KEY.isnull()] ###eliminación registros sin sucursal asociada
@@ -219,7 +219,7 @@ for estado in estados_iniciales:                                   ###Categoriza
 resumen_total_ciudad["estado2"] = estado2 
 
 
-# In[36]:
+# In[7]:
 
 
 base_cancelados_call = resumen_total_ciudad[(resumen_total_ciudad["estado2"]=="Cancelado") & (resumen_total_ciudad.ORDER_NO.str.contains("COCC"))]
@@ -236,7 +236,7 @@ base_cancelados_ecomm = pd.merge(base_cancelados_ecomm,cancelados_ecomm,left_on 
 base_cancelados_total = pd.concat([base_cancelados_call,base_cancelados_ecomm],axis = 0)
 
 
-# In[37]:
+# In[8]:
 
 
 tabla_cancelados = pd.pivot_table(base_cancelados_total,index =["RESPONSABLE"],columns = ["Semana_Orden"],values =["ORDER_NO"],aggfunc = "count",fill_value = 0)
@@ -273,7 +273,7 @@ porcentajes_ = porcentajes_.reset_index()
 porcentajes_.columns = tabla_cancelados.columns
 
 
-# In[38]:
+# In[9]:
 
 
 cancelados_dev_gral = pd.pivot_table(resumen_total_ciudad,index =["Semana_Orden"],columns = ["ENTRY_TYPE","estado2"],values =["ORDER_NO"],aggfunc = "count")
@@ -316,7 +316,7 @@ participacionxciudad["Prt Medellín"] = np.round(participacionxciudad["Prt Medel
 participacionxciudad["Prt Otras ciudades"] = np.round(participacionxciudad["Prt Otras ciudades"]*100,decimals =1)
 
 
-# In[39]:
+# In[10]:
 
 
 saltos_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"])
@@ -364,7 +364,7 @@ Porcentaje_saltos_tipo["Porc Saltos Quiebre"] = np.round(Porcentaje_saltos_tipo[
 Porcentaje_saltos_tipo["Porc Saltos Tiempo"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Tiempo"]*100,decimals =1)
 
 
-# In[40]:
+# In[11]:
 
 
 fmedica_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","ORDER_DATE","DOCUMENT_TYPE","ENTRY_TYPE","PRESCRIPTION_NAME","ENTERPRISE_KEY"])
@@ -380,7 +380,7 @@ for the_file in os.listdir(r"F.Medica OMS"):
     fmedica_total = pd.concat([fmedica_total,fmedica_parcial],axis=0)
 
 
-# In[41]:
+# In[12]:
 
 
 resumen_total_ciudad = pd.merge(resumen_total_ciudad,fmedica_total,left_on="ORDER_NO",right_on="ORDER_NO",how ="left")
@@ -402,7 +402,7 @@ resumen_total_ciudad =resumen_total_ciudad[resumen_total_ciudad.PRESCRIPTION_NAM
 resumen_total_ciudad = resumen_total_ciudad[resumen_total_ciudad["EXTN_ET_FULFILMENT"]=="N"]
 
 
-# In[42]:
+# In[13]:
 
 
 um_total = pd.DataFrame(columns=['numorden', 'iniciado', 'asignado', 'llego_punto', 'salio_punto', 'llego_cliente', 'finalizado', 'distancia_km', 'Finalizado Fallido', 'Tipo Fallido', 'Valor Servicio', 'Proveedor', 'Estado UM', 'Mes','Dia'])
@@ -415,7 +415,7 @@ for the_file in os.listdir(r"UM Q3 21"):
 um_total["distancia_km"] = pd.to_numeric(um_total["distancia_km"],downcast = "integer")
 
 
-# In[43]:
+# In[14]:
 
 
 um_total["iniciado"] = pd.to_datetime(um_total["iniciado"], format="%Y-%m-%d %H:%M:%S")
@@ -495,7 +495,7 @@ df_tiempo_total["Valor Servicio"] = pd.to_numeric(df_tiempo_total["Valor Servici
 
 # ### Filtros para tiempos totales y cumplimientos
 
-# In[44]:
+# In[15]:
 
 
 df_tiempo_total_filtro = df_tiempo_total[(df_tiempo_total["TiempoTotal_min"]>=0) & (df_tiempo_total["TiempoTotal_min"]<=900)]
@@ -506,7 +506,7 @@ df_tiempo_total_filtro_reprog_6km= df_tiempo_total_filtro_reprog[df_tiempo_total
 
 # ### Tabla dinámica kilometraje participación
 
-# In[45]:
+# In[16]:
 
 
 pivot_6km = pd.pivot_table(df_tiempo_total_filtro, index =["CiudadB","Semana_Orden"],columns =["Categoria 6km"],values =["ORDER_NO"],aggfunc = "count")
@@ -518,7 +518,7 @@ pivot_6km["PorcMenor6km"] = np.round(pivot_6km["PorcMenor6km"]*100,decimals=1)
 
 # ### Tablas Dinámicas - Tiempos Totales, Cumplimientos
 
-# In[46]:
+# In[17]:
 
 
 ###Generales filtro 900 min
@@ -681,7 +681,7 @@ cumpleUM40min_sinRp_6km["Cumplimiento"] = np.round(cumpleUM40min_sinRp_6km["Cump
 
 # ### Calculos Tiempos Alistamiento
 
-# In[47]:
+# In[18]:
 
 
 tiempos_total = pd.DataFrame(columns=["ORDER_NO","STATUS","STATUS_DATE","SHIPNODE_KEY"])
@@ -700,7 +700,7 @@ for the_file in os.listdir(r"Tiempos OMS"):
     tiempos_total = pd.concat([tiempos_total,tiempos_parcial],axis=0)
 
 
-# In[48]:
+# In[19]:
 
 
 tiempos_total = tiempos_total[tiempos_total.STATUS.isin(["3350.1000","3350.1500.1000"])] ### Se toma solo ready for backroompick y packing complete
@@ -723,7 +723,7 @@ readyforback = tiempos_total[tiempos_total["STATUS"]=="3350.1000"]   ###df ready
 packingcomplete = tiempos_total[tiempos_total["STATUS"]=="3350.1500.1000"] ###df packing complete
 
 
-# In[49]:
+# In[20]:
 
 
 readyforback= readyforback.sort_values("STATUS_DATE_COL",ascending=True) ### Más antiguo al mas reciente
@@ -807,7 +807,7 @@ inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["T
 inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["TiempoAlistamiento_(min)"]<=5,"CumplimientoAlistamiento_3(min)"]="Cumple"
 
 
-# In[50]:
+# In[21]:
 
 
 readyforbackultimos= readyforback.drop_duplicates(subset = ["ORDER_NO"],keep = "last")
@@ -891,7 +891,7 @@ inicioalistamiento_mas_reciente_final.loc[inicioalistamiento_mas_reciente_final[
 
 # ### Tablas Dinámicas Tiempos de alistamiento y cumplimiento alistamiento
 
-# In[51]:
+# In[22]:
 
 
 tiempo_alistamiento1er  = pd.pivot_table(inicioalistamiento_mas_antiguo_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE"],values = ["TiempoAlistamiento_(min)"],aggfunc =np.mean)
@@ -918,7 +918,7 @@ cumplimiento3min["Cumplimiento3min"] = np.round(cumplimiento3min["Cumplimiento3m
 
 # ### Cobro de domicilios
 
-# In[52]:
+# In[23]:
 
 
 total_cobro = pd.DataFrame(columns = ["Fecha_linea","Sucursal","Codigo","Canal","Valor"])
@@ -964,7 +964,7 @@ cobro_canal_m["OMS"] = np.round(cobro_canal_m["OMS"]/1000000,decimals=3)
 cobro_canal_m["Total_Cobro"] = np.round(cobro_canal_m["Total_Cobro"]/1000000,decimals=3)
 
 
-# In[53]:
+# In[24]:
 
 
 bogotaprimerRFBP= tiempo_alistamiento1er[tiempo_alistamiento1er["Ciudad"]=="Bogotá"]
@@ -1092,7 +1092,7 @@ medellin_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Medellí
 otrasciudades_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Otras ciudades"]
 
 
-# In[58]:
+# In[25]:
 
 
 ###Figura participación por ciudad
@@ -1883,21 +1883,25 @@ app.layout = html.Div([
                     dcc.Graph(id="TotalBog",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
             html.Div([
                 html.H3("Barranquilla"),
-                    dcc.Graph(id="TotalBog2",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
+                    dcc.Graph(id="TotalBquilla",figure = fig_Ttotal_nofiltro_bquilla)],className = 'create_container2'),
             html.Div([
                 html.H3("Cali"),
-                dcc.Graph(id="TotalBog3",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
+                dcc.Graph(id="Total]Med",figure = fig_Ttotal_nofiltro_cali)],className = 'create_container2'),
             html.Div([
                 html.H3("Medellín"),
-                dcc.Graph(id="TotalBog4",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2'),
+                dcc.Graph(id="TotalCali",figure = fig_Ttotal_nofiltro_med)], className = 'create_container2'),
             html.Div([
                 html.H3("Otras ciudades"),
-                dcc.Graph(id="TotalBog5",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2')
+                dcc.Graph(id="TotalOtros",figure = fig_Cumpletotal_nofiltro_otros)], className = 'create_container2')
             
  
         ],className='contenedor-graficos')
     ]),
     
+    
+
+
+
     
    
     ###Cumplimientos sin filtro
