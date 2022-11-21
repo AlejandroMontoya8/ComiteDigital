@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[31]:
+# In[6]:
 
 
 import pandas as pd
@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
-# In[32]:
+# In[7]:
 
 
 resumen_total = pd.DataFrame(columns=["ORDER_NO","ORDER_DATE","ENTRY_TYPE","LEVEL_OF_SERVICE","STATUS_NAME","EXTN_ORG_REQ_SHIP_DATE","EXTN_ET_FULFILMENT","SHIPNODE_KEY"])
@@ -29,7 +29,7 @@ for the_file in os.listdir(r"Resumen OMS Q3 2021"):
     resumen_total = pd.concat([resumen_total,resumen_parcial],axis=0)
 
 
-# In[33]:
+# In[8]:
 
 
 resumen_total["ORDER_DATE"] = pd.to_datetime(resumen_total["ORDER_DATE"],format="%Y-%m-%d %H:%M:%S")
@@ -62,13 +62,13 @@ resumen_total["Anio_Orden"] = Anio_Orden
 
 
 meses = [9,10,11]
-semanas = [39,40,41,42,43,44,45]
+semanas = [40,41,42,43,44,45,46]
 
 #resumen_total = resumen_total[resumen_total.Mes_Orden.isin(meses)]
 resumen_total = resumen_total[resumen_total.Semana_Orden.isin(semanas)]
 
 
-# In[34]:
+# In[9]:
 
 
 venta = resumen_total["ORIGINAL_TOTAL_AMOUNT"]
@@ -145,7 +145,7 @@ ordenes_ret_m.columns = ["Mes_Orden","Customer Picked Up"]
 ordenes_ret_m = ordenes_ret_m[ordenes_ret_m.Mes_Orden.isin(meses)]
 
 
-# In[35]:
+# In[10]:
 
 
 resumen_total_ciudad = resumen_total[~resumen_total.SHIPNODE_KEY.isnull()] ###eliminación registros sin sucursal asociada
@@ -219,7 +219,7 @@ for estado in estados_iniciales:                                   ###Categoriza
 resumen_total_ciudad["estado2"] = estado2 
 
 
-# In[36]:
+# In[11]:
 
 
 base_cancelados_call = resumen_total_ciudad[(resumen_total_ciudad["estado2"]=="Cancelado") & (resumen_total_ciudad.ORDER_NO.str.contains("COCC"))]
@@ -236,7 +236,7 @@ base_cancelados_ecomm = pd.merge(base_cancelados_ecomm,cancelados_ecomm,left_on 
 base_cancelados_total = pd.concat([base_cancelados_call,base_cancelados_ecomm],axis = 0)
 
 
-# In[37]:
+# In[12]:
 
 
 tabla_cancelados = pd.pivot_table(base_cancelados_total,index =["RESPONSABLE"],columns = ["Semana_Orden"],values =["ORDER_NO"],aggfunc = "count",fill_value = 0)
@@ -273,7 +273,7 @@ porcentajes_ = porcentajes_.reset_index()
 porcentajes_.columns = tabla_cancelados.columns
 
 
-# In[38]:
+# In[13]:
 
 
 cancelados_dev_gral = pd.pivot_table(resumen_total_ciudad,index =["Semana_Orden"],columns = ["ENTRY_TYPE","estado2"],values =["ORDER_NO"],aggfunc = "count")
@@ -316,7 +316,7 @@ participacionxciudad["Prt Medellín"] = np.round(participacionxciudad["Prt Medel
 participacionxciudad["Prt Otras ciudades"] = np.round(participacionxciudad["Prt Otras ciudades"]*100,decimals =1)
 
 
-# In[39]:
+# In[14]:
 
 
 saltos_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"])
@@ -364,7 +364,7 @@ Porcentaje_saltos_tipo["Porc Saltos Quiebre"] = np.round(Porcentaje_saltos_tipo[
 Porcentaje_saltos_tipo["Porc Saltos Tiempo"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Tiempo"]*100,decimals =1)
 
 
-# In[40]:
+# In[15]:
 
 
 fmedica_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","ORDER_DATE","DOCUMENT_TYPE","ENTRY_TYPE","PRESCRIPTION_NAME","ENTERPRISE_KEY"])
@@ -380,7 +380,7 @@ for the_file in os.listdir(r"F.Medica OMS"):
     fmedica_total = pd.concat([fmedica_total,fmedica_parcial],axis=0)
 
 
-# In[41]:
+# In[16]:
 
 
 resumen_total_ciudad = pd.merge(resumen_total_ciudad,fmedica_total,left_on="ORDER_NO",right_on="ORDER_NO",how ="left")
@@ -402,7 +402,7 @@ resumen_total_ciudad =resumen_total_ciudad[resumen_total_ciudad.PRESCRIPTION_NAM
 resumen_total_ciudad = resumen_total_ciudad[resumen_total_ciudad["EXTN_ET_FULFILMENT"]=="N"]
 
 
-# In[42]:
+# In[17]:
 
 
 um_total = pd.DataFrame(columns=['numorden', 'iniciado', 'asignado', 'llego_punto', 'salio_punto', 'llego_cliente', 'finalizado', 'distancia_km', 'Finalizado Fallido', 'Tipo Fallido', 'Valor Servicio', 'Proveedor', 'Estado UM', 'Mes','Dia'])
@@ -415,7 +415,7 @@ for the_file in os.listdir(r"UM Q3 21"):
 um_total["distancia_km"] = pd.to_numeric(um_total["distancia_km"],downcast = "integer")
 
 
-# In[43]:
+# In[18]:
 
 
 um_total["iniciado"] = pd.to_datetime(um_total["iniciado"], format="%Y-%m-%d %H:%M:%S")
@@ -495,7 +495,7 @@ df_tiempo_total["Valor Servicio"] = pd.to_numeric(df_tiempo_total["Valor Servici
 
 # ### Filtros para tiempos totales y cumplimientos
 
-# In[44]:
+# In[19]:
 
 
 df_tiempo_total_filtro = df_tiempo_total[(df_tiempo_total["TiempoTotal_min"]>=0) & (df_tiempo_total["TiempoTotal_min"]<=900)]
@@ -506,7 +506,7 @@ df_tiempo_total_filtro_reprog_6km= df_tiempo_total_filtro_reprog[df_tiempo_total
 
 # ### Tabla dinámica kilometraje participación
 
-# In[45]:
+# In[20]:
 
 
 pivot_6km = pd.pivot_table(df_tiempo_total_filtro, index =["CiudadB","Semana_Orden"],columns =["Categoria 6km"],values =["ORDER_NO"],aggfunc = "count")
@@ -518,7 +518,7 @@ pivot_6km["PorcMenor6km"] = np.round(pivot_6km["PorcMenor6km"]*100,decimals=1)
 
 # ### Tablas Dinámicas - Tiempos Totales, Cumplimientos
 
-# In[46]:
+# In[21]:
 
 
 ###Generales filtro 900 min
@@ -681,7 +681,7 @@ cumpleUM40min_sinRp_6km["Cumplimiento"] = np.round(cumpleUM40min_sinRp_6km["Cump
 
 # ### Calculos Tiempos Alistamiento
 
-# In[47]:
+# In[22]:
 
 
 tiempos_total = pd.DataFrame(columns=["ORDER_NO","STATUS","STATUS_DATE","SHIPNODE_KEY"])
@@ -700,7 +700,7 @@ for the_file in os.listdir(r"Tiempos OMS"):
     tiempos_total = pd.concat([tiempos_total,tiempos_parcial],axis=0)
 
 
-# In[48]:
+# In[23]:
 
 
 tiempos_total = tiempos_total[tiempos_total.STATUS.isin(["3350.1000","3350.1500.1000"])] ### Se toma solo ready for backroompick y packing complete
@@ -723,7 +723,7 @@ readyforback = tiempos_total[tiempos_total["STATUS"]=="3350.1000"]   ###df ready
 packingcomplete = tiempos_total[tiempos_total["STATUS"]=="3350.1500.1000"] ###df packing complete
 
 
-# In[49]:
+# In[24]:
 
 
 readyforback= readyforback.sort_values("STATUS_DATE_COL",ascending=True) ### Más antiguo al mas reciente
@@ -807,7 +807,7 @@ inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["T
 inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["TiempoAlistamiento_(min)"]<=5,"CumplimientoAlistamiento_3(min)"]="Cumple"
 
 
-# In[50]:
+# In[25]:
 
 
 readyforbackultimos= readyforback.drop_duplicates(subset = ["ORDER_NO"],keep = "last")
@@ -891,7 +891,7 @@ inicioalistamiento_mas_reciente_final.loc[inicioalistamiento_mas_reciente_final[
 
 # ### Tablas Dinámicas Tiempos de alistamiento y cumplimiento alistamiento
 
-# In[51]:
+# In[26]:
 
 
 tiempo_alistamiento1er  = pd.pivot_table(inicioalistamiento_mas_antiguo_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE"],values = ["TiempoAlistamiento_(min)"],aggfunc =np.mean)
@@ -918,7 +918,7 @@ cumplimiento3min["Cumplimiento3min"] = np.round(cumplimiento3min["Cumplimiento3m
 
 # ### Cobro de domicilios
 
-# In[52]:
+# In[27]:
 
 
 total_cobro = pd.DataFrame(columns = ["Fecha_linea","Sucursal","Codigo","Canal","Valor"])
@@ -964,7 +964,7 @@ cobro_canal_m["OMS"] = np.round(cobro_canal_m["OMS"]/1000000,decimals=3)
 cobro_canal_m["Total_Cobro"] = np.round(cobro_canal_m["Total_Cobro"]/1000000,decimals=3)
 
 
-# In[53]:
+# In[28]:
 
 
 bogotaprimerRFBP= tiempo_alistamiento1er[tiempo_alistamiento1er["Ciudad"]=="Bogotá"]
@@ -1092,7 +1092,7 @@ medellin_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Medellí
 otrasciudades_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Otras ciudades"]
 
 
-# In[58]:
+# In[29]:
 
 
 ###Figura participación por ciudad
@@ -1207,7 +1207,7 @@ fig_Ttotal_sinRp_bog = go.Figure()
 fig_Ttotal_sinRp_bog.add_trace(go.Scatter(x=bogota_TotalsinRp["Semana_Orden"],y=bogota_TotalsinRp["SameDayCall"],name ="Call Center",mode="lines+markers+text",text=bogota_TotalsinRp["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp_bog.add_trace(go.Scatter(x=bogota_TotalsinRp["Semana_Orden"],y=bogota_TotalsinRp["SameDayEcomm"],name ="Ecommerce",mode="lines+markers+text",text=bogota_TotalsinRp["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp_bog.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp_bog.update_yaxes(range=[30,90],title ="Min")
+fig_Ttotal_sinRp_bog.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp_bog.update_xaxes(dtick =1,title ="Semanas")
 fig_Ttotal_sinRp_bog.update_traces(textfont_size=10)
 
@@ -1215,7 +1215,7 @@ fig_Ttotal_sinRp_bquilla = go.Figure()
 fig_Ttotal_sinRp_bquilla.add_trace(go.Scatter(x=bquilla_TotalsinRp["Semana_Orden"],y=bquilla_TotalsinRp["SameDayCall"],name="Call Center",mode="lines+markers+text",text=bquilla_TotalsinRp["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp_bquilla.add_trace(go.Scatter(x=bquilla_TotalsinRp["Semana_Orden"],y=bquilla_TotalsinRp["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=bquilla_TotalsinRp["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp_bquilla.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp_bquilla.update_yaxes(range=[30,90],title ="Min")
+fig_Ttotal_sinRp_bquilla.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp_bquilla.update_xaxes(dtick = 1,title ="Semanas")
 fig_Ttotal_sinRp_bquilla.update_traces(textfont_size=10)
 
@@ -1223,7 +1223,7 @@ fig_Ttotal_sinRp_cali = go.Figure()
 fig_Ttotal_sinRp_cali.add_trace(go.Scatter(x=cali_TotalsinRp["Semana_Orden"],y=cali_TotalsinRp["SameDayCall"],name="Call Center",mode="lines+markers+text",text=cali_TotalsinRp["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp_cali.add_trace(go.Scatter(x=cali_TotalsinRp["Semana_Orden"],y=cali_TotalsinRp["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=cali_TotalsinRp["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp_cali.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp_cali.update_yaxes(range=[30,90],title ="Min")
+fig_Ttotal_sinRp_cali.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp_cali.update_xaxes(dtick =1,title ="Semanas")
 fig_Ttotal_sinRp_cali.update_traces(textfont_size=10)
 
@@ -1231,7 +1231,7 @@ fig_Ttotal_sinRp_med = go.Figure()
 fig_Ttotal_sinRp_med.add_trace(go.Scatter(x=medellin_TotalsinRp["Semana_Orden"],y=medellin_TotalsinRp["SameDayCall"],name="Call Center",mode="lines+markers+text",text=medellin_TotalsinRp["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp_med.add_trace(go.Scatter(x=medellin_TotalsinRp["Semana_Orden"],y=medellin_TotalsinRp["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=medellin_TotalsinRp["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp_med.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp_med.update_yaxes(range=[30,90],title = "(%)")
+fig_Ttotal_sinRp_med.update_yaxes(range=[20,80],title = "(%)")
 fig_Ttotal_sinRp_med.update_xaxes(dtick =1,title = "Semanas")
 fig_Ttotal_sinRp_med.update_traces(textfont_size=10)
 
@@ -1239,7 +1239,7 @@ fig_Ttotal_sinRp_otros = go.Figure()
 fig_Ttotal_sinRp_otros.add_trace(go.Scatter(x=otrasciudades_totalsinRp["Semana_Orden"],y=otrasciudades_totalsinRp["SameDayCall"],name="Call Center",mode="lines+markers+text",text=otrasciudades_totalsinRp["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp_otros.add_trace(go.Scatter(x=otrasciudades_totalsinRp["Semana_Orden"],y=otrasciudades_totalsinRp["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=otrasciudades_totalsinRp["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp_otros.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp_otros.update_yaxes(range=[30,90],title ="(%)")
+fig_Ttotal_sinRp_otros.update_yaxes(range=[20,80],title ="(%)")
 fig_Ttotal_sinRp_otros.update_xaxes(dtick =1,title ="Semanas")
 fig_Ttotal_sinRp_otros.update_traces(textfont_size=10)
 
@@ -1293,7 +1293,7 @@ fig_Ttotal_sinRp6km_bog = go.Figure()
 fig_Ttotal_sinRp6km_bog.add_trace(go.Scatter(x=bogota_TotalSinRP_6km["Semana_Orden"],y=bogota_TotalSinRP_6km["SameDayCall"],name ="Call Center",mode="lines+markers+text",text=bogota_TotalSinRP_6km["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp6km_bog.add_trace(go.Scatter(x=bogota_TotalSinRP_6km["Semana_Orden"],y=bogota_TotalSinRP_6km["SameDayEcomm"],name ="Ecommerce",mode="lines+markers+text",text=bogota_TotalSinRP_6km["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp6km_bog.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp6km_bog.update_yaxes(range=[30,80],title ="Min")
+fig_Ttotal_sinRp6km_bog.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp6km_bog.update_xaxes(dtick=1,title ="Semanas")
 fig_Ttotal_sinRp6km_bog.update_traces(textfont_size=10)
 
@@ -1301,7 +1301,7 @@ fig_Ttotal_sinRp6km_bquilla = go.Figure()
 fig_Ttotal_sinRp6km_bquilla.add_trace(go.Scatter(x=bquilla_TotalSinRP_6km["Semana_Orden"],y=bquilla_TotalSinRP_6km["SameDayCall"],name="Call Center",mode="lines+markers+text",text=bquilla_TotalSinRP_6km["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp6km_bquilla.add_trace(go.Scatter(x=bquilla_TotalSinRP_6km["Semana_Orden"],y=bquilla_TotalSinRP_6km["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=bquilla_TotalSinRP_6km["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp6km_bquilla.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp6km_bquilla.update_yaxes(range=[30,80],title ="Min")
+fig_Ttotal_sinRp6km_bquilla.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp6km_bquilla.update_xaxes(dtick=1,title ="Semanas")
 fig_Ttotal_sinRp6km_bquilla.update_traces(textfont_size=10)
 
@@ -1309,7 +1309,7 @@ fig_Ttotal_sinRp6km_cali = go.Figure()
 fig_Ttotal_sinRp6km_cali.add_trace(go.Scatter(x=cali_TotalSinRP_6km["Semana_Orden"],y=cali_TotalSinRP_6km["SameDayCall"],name="Call Center",mode="lines+markers+text",text=cali_TotalSinRP_6km["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp6km_cali.add_trace(go.Scatter(x=cali_TotalSinRP_6km["Semana_Orden"],y=cali_TotalSinRP_6km["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=cali_TotalSinRP_6km["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp6km_cali.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp6km_cali.update_yaxes(range=[30,80],title ="Min")
+fig_Ttotal_sinRp6km_cali.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp6km_cali.update_xaxes(dtick=1,title ="Semanas")
 fig_Ttotal_sinRp6km_cali.update_traces(textfont_size=10)
 
@@ -1317,7 +1317,7 @@ fig_Ttotal_sinRp6km_med = go.Figure()
 fig_Ttotal_sinRp6km_med.add_trace(go.Scatter(x=medellin_TotalSinRP_6km["Semana_Orden"],y=medellin_TotalSinRP_6km["SameDayCall"],name="Call Center",mode="lines+markers+text",text=medellin_TotalSinRP_6km["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp6km_med.add_trace(go.Scatter(x=medellin_TotalSinRP_6km["Semana_Orden"],y=medellin_TotalSinRP_6km["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=medellin_TotalSinRP_6km["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp6km_med.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp6km_med.update_yaxes(range=[30,80],title ="Min")
+fig_Ttotal_sinRp6km_med.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp6km_med.update_xaxes(dtick=1,title ="Semanas")
 fig_Ttotal_sinRp6km_med.update_traces(textfont_size=10)
 
@@ -1325,7 +1325,7 @@ fig_Ttotal_sinRp6km_otros = go.Figure()
 fig_Ttotal_sinRp6km_otros.add_trace(go.Scatter(x=otrasciudades_TotalSinRP_6km["Semana_Orden"],y=otrasciudades_TotalSinRP_6km["SameDayCall"],name="Call Center",mode="lines+markers+text",text=otrasciudades_TotalSinRP_6km["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_sinRp6km_otros.add_trace(go.Scatter(x=otrasciudades_TotalSinRP_6km["Semana_Orden"],y=otrasciudades_TotalSinRP_6km["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=otrasciudades_TotalSinRP_6km["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_sinRp6km_otros.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_sinRp6km_otros.update_yaxes(range=[30,80],title ="Min")
+fig_Ttotal_sinRp6km_otros.update_yaxes(range=[20,80],title ="Min")
 fig_Ttotal_sinRp6km_otros.update_xaxes(dtick=1,title ="Semanas")
 fig_Ttotal_sinRp6km_otros.update_traces(textfont_size=10)
 
@@ -1377,7 +1377,7 @@ fig_tiempoUM_sinRP_bog = go.Figure()
 fig_tiempoUM_sinRP_bog.add_trace(go.Scatter(x =bogotaUM_sinRP["Semana_Orden"],y =bogotaUM_sinRP["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = bogotaUM_sinRP["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP_bog.add_trace(go.Scatter(x =bogotaUM_sinRP["Semana_Orden"],y =bogotaUM_sinRP["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = bogotaUM_sinRP["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP_bog.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP_bog.update_yaxes(range=[15,65],title ="Min")
+fig_tiempoUM_sinRP_bog.update_yaxes(range=[10,65],title ="Min")
 fig_tiempoUM_sinRP_bog.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP_bog.update_traces(textfont_size=10)
 
@@ -1385,7 +1385,7 @@ fig_tiempoUM_sinRP_bquilla = go.Figure()
 fig_tiempoUM_sinRP_bquilla.add_trace(go.Scatter(x =bquillaUM_sinRP["Semana_Orden"],y = bquillaUM_sinRP["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = bquillaUM_sinRP["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP_bquilla.add_trace(go.Scatter(x = bquillaUM_sinRP["Semana_Orden"],y =bquillaUM_sinRP["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = bquillaUM_sinRP["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP_bquilla.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP_bquilla.update_yaxes(range=[15,65],title ="Min")
+fig_tiempoUM_sinRP_bquilla.update_yaxes(range=[10,65],title ="Min")
 fig_tiempoUM_sinRP_bquilla.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP_bquilla.update_traces(textfont_size=10)
 
@@ -1393,7 +1393,7 @@ fig_tiempoUM_sinRP_cali = go.Figure()
 fig_tiempoUM_sinRP_cali.add_trace(go.Scatter(x =caliUM_sinRP["Semana_Orden"],y = caliUM_sinRP["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = caliUM_sinRP["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP_cali.add_trace(go.Scatter(x = caliUM_sinRP["Semana_Orden"],y = caliUM_sinRP["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = caliUM_sinRP["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP_cali.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP_cali.update_yaxes(range=[15,65],title ="Min")
+fig_tiempoUM_sinRP_cali.update_yaxes(range=[10,65],title ="Min")
 fig_tiempoUM_sinRP_cali.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP_cali.update_traces(textfont_size=10)
 
@@ -1401,7 +1401,7 @@ fig_tiempoUM_sinRP_med = go.Figure()
 fig_tiempoUM_sinRP_med.add_trace(go.Scatter(x =medellinUM_sinRP["Semana_Orden"],y = medellinUM_sinRP["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = medellinUM_sinRP["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP_med.add_trace(go.Scatter(x = medellinUM_sinRP["Semana_Orden"],y = medellinUM_sinRP["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = medellinUM_sinRP["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP_med.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP_med.update_yaxes(range=[15,65],title ="Min")
+fig_tiempoUM_sinRP_med.update_yaxes(range=[10,65],title ="Min")
 fig_tiempoUM_sinRP_med.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP_med.update_traces(textfont_size=10)
 
@@ -1409,7 +1409,7 @@ fig_tiempoUM_sinRP_otros = go.Figure()
 fig_tiempoUM_sinRP_otros.add_trace(go.Scatter(x = otrasciudadesUM_sinRP["Semana_Orden"],y = otrasciudadesUM_sinRP["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = otrasciudadesUM_sinRP["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP_otros.add_trace(go.Scatter(x = otrasciudadesUM_sinRP["Semana_Orden"],y = otrasciudadesUM_sinRP["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = otrasciudadesUM_sinRP["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP_otros.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP_otros.update_yaxes(range=[15,65],title ="Min")
+fig_tiempoUM_sinRP_otros.update_yaxes(range=[10,65],title ="Min")
 fig_tiempoUM_sinRP_otros.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP_otros.update_traces(textfont_size=10)
                                     
@@ -1457,7 +1457,7 @@ fig_tiempoUM_sinRP6km_bog = go.Figure()
 fig_tiempoUM_sinRP6km_bog.add_trace(go.Scatter(x =bogotaUM_sinRp_6km["Semana_Orden"],y =bogotaUM_sinRp_6km["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = bogotaUM_sinRp_6km["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP6km_bog.add_trace(go.Scatter(x =bogotaUM_sinRp_6km["Semana_Orden"],y =bogotaUM_sinRp_6km["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = bogotaUM_sinRp_6km["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP6km_bog.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP6km_bog.update_yaxes(range=[10,60],title ="Min")
+fig_tiempoUM_sinRP6km_bog.update_yaxes(range=[0,50],title ="Min")
 fig_tiempoUM_sinRP6km_bog.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP6km_bog.update_traces(textfont_size=10)
 
@@ -1465,7 +1465,7 @@ fig_tiempoUM_sinRP6km_bquilla = go.Figure()
 fig_tiempoUM_sinRP6km_bquilla.add_trace(go.Scatter(x =bquillaUM_sinRp_6km["Semana_Orden"],y = bquillaUM_sinRp_6km["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = bquillaUM_sinRp_6km["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP6km_bquilla.add_trace(go.Scatter(x =bquillaUM_sinRp_6km["Semana_Orden"],y = bquillaUM_sinRp_6km["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = bquillaUM_sinRp_6km["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP6km_bquilla.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP6km_bquilla.update_yaxes(range=[10,60],title ="Min")
+fig_tiempoUM_sinRP6km_bquilla.update_yaxes(range=[0,50],title ="Min")
 fig_tiempoUM_sinRP6km_bquilla.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP6km_bquilla.update_traces(textfont_size=10)
 
@@ -1473,7 +1473,7 @@ fig_tiempoUM_sinRP6km_cali = go.Figure()
 fig_tiempoUM_sinRP6km_cali.add_trace(go.Scatter(x =caliUM_sinRp_6km["Semana_Orden"],y = caliUM_sinRp_6km["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = caliUM_sinRp_6km["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP6km_cali.add_trace(go.Scatter(x = caliUM_sinRp_6km["Semana_Orden"],y = caliUM_sinRp_6km["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = caliUM_sinRp_6km["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP6km_cali.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP6km_cali.update_yaxes(range=[10,60],title ="Min")
+fig_tiempoUM_sinRP6km_cali.update_yaxes(range=[0,50],title ="Min")
 fig_tiempoUM_sinRP6km_cali.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP6km_cali.update_traces(textfont_size=10)
 
@@ -1481,7 +1481,7 @@ fig_tiempoUM_sinRP6km_med = go.Figure()
 fig_tiempoUM_sinRP6km_med.add_trace(go.Scatter(x =medellinUM_sinRp_6km["Semana_Orden"],y = medellinUM_sinRp_6km["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = medellinUM_sinRp_6km["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP6km_med.add_trace(go.Scatter(x = medellinUM_sinRp_6km["Semana_Orden"],y = medellinUM_sinRp_6km["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = medellinUM_sinRp_6km["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP6km_med.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP6km_med.update_yaxes(range=[10,60],title ="Min")
+fig_tiempoUM_sinRP6km_med.update_yaxes(range=[0,50],title ="Min")
 fig_tiempoUM_sinRP6km_med.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP6km_med.update_traces(textfont_size=10)
 
@@ -1489,7 +1489,7 @@ fig_tiempoUM_sinRP6km_otros = go.Figure()
 fig_tiempoUM_sinRP6km_otros.add_trace(go.Scatter(x = otrasciudadesUM_sinRp_6km["Semana_Orden"],y = otrasciudadesUM_sinRp_6km["SameDayCall"], name = "Call Center", mode = "lines+markers+text", text = otrasciudadesUM_sinRp_6km["SameDayCall"], textposition = "middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_tiempoUM_sinRP6km_otros.add_trace(go.Scatter(x = otrasciudadesUM_sinRp_6km["Semana_Orden"],y = otrasciudadesUM_sinRp_6km["SameDayEcomm"], name = "Ecommerce", mode = "lines+markers+text", text = otrasciudadesUM_sinRp_6km["SameDayEcomm"], textposition = "middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_tiempoUM_sinRP6km_otros.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_tiempoUM_sinRP6km_otros.update_yaxes(range=[10,60],title ="(%)")
+fig_tiempoUM_sinRP6km_otros.update_yaxes(range=[0,50],title ="(%)")
 fig_tiempoUM_sinRP6km_otros.update_xaxes(dtick=1,title ="Semanas")
 fig_tiempoUM_sinRP6km_otros.update_traces(textfont_size=10)
 
@@ -1883,16 +1883,16 @@ app.layout = html.Div([
                     dcc.Graph(id="TotalBog",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
             html.Div([
                 html.H3("Barranquilla"),
-                    dcc.Graph(id="TotalBog2",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
+                    dcc.Graph(id="TotalBarranquilla",figure = fig_Ttotal_nofiltro_bquilla)],className = 'create_container2'),
             html.Div([
                 html.H3("Cali"),
-                dcc.Graph(id="TotalBog3",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
+                dcc.Graph(id="TotalCali",figure = fig_Ttotal_nofiltro_cali)],className = 'create_container2'),
             html.Div([
                 html.H3("Medellín"),
-                dcc.Graph(id="TotalBog4",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2'),
+                dcc.Graph(id="TotalMedellin",figure = fig_Ttotal_nofiltro_med)], className = 'create_container2'),
             html.Div([
                 html.H3("Otras ciudades"),
-                dcc.Graph(id="TotalBog5",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2')
+                dcc.Graph(id="TotalOtros",figure = fig_Ttotal_nofiltro_otros)], className = 'create_container2')
             
  
         ],className='contenedor-graficos')
@@ -2333,10 +2333,12 @@ if __name__ == '__main__':
     app.run_server(debug=False)
 
 
-# In[ ]:
+# In[30]:
 
 
-
+df_tiempo_total_filtro.to_excel(r"C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\tiempos_totales.xlsx")
+inicioalistamiento_mas_antiguo_final.to_excel(r"C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\tiempos_alista_1rfbp.xlsx")
+inicioalistamiento_mas_reciente_final.to_excel(r"C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\tiempos_alista_ultrfbp.xlsx")
 
 
 # In[ ]:
