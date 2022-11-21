@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[31]:
+
+
 import pandas as pd
 import os
 import numpy as np
@@ -6,6 +12,10 @@ import datetime
 from dash import Dash, dcc, html,Input, Output
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
+
+# In[32]:
+
 
 resumen_total = pd.DataFrame(columns=["ORDER_NO","ORDER_DATE","ENTRY_TYPE","LEVEL_OF_SERVICE","STATUS_NAME","EXTN_ORG_REQ_SHIP_DATE","EXTN_ET_FULFILMENT","SHIPNODE_KEY"])
 for the_file in os.listdir(r"Resumen OMS Q3 2021"):
@@ -17,6 +27,10 @@ for the_file in os.listdir(r"Resumen OMS Q3 2021"):
     print(the_file)
     resumen_parcial=resumen_parcial[["ORDER_NO","ORDER_DATE","ENTRY_TYPE","ORDER_TYPE","LEVEL_OF_SERVICE","EXTN_RUN_RUT_NIT","ORIGINAL_TOTAL_AMOUNT","STATUS_NAME","EXTN_ORG_REQ_SHIP_DATE","EXTN_ET_FULFILMENT","SHIPNODE_KEY"]]
     resumen_total = pd.concat([resumen_total,resumen_parcial],axis=0)
+
+
+# In[33]:
+
 
 resumen_total["ORDER_DATE"] = pd.to_datetime(resumen_total["ORDER_DATE"],format="%Y-%m-%d %H:%M:%S")
 order_date_inicial = resumen_total["ORDER_DATE"]
@@ -47,11 +61,15 @@ resumen_total["Hora_Orden"] = Hora_Orden
 resumen_total["Anio_Orden"] = Anio_Orden
 
 
-#meses = [1,2,3,4,5,6,7,8,9,10]
-semanas = [40,41,42,43,44,45,46]
+meses = [9,10,11]
+semanas = [39,40,41,42,43,44,45]
 
 #resumen_total = resumen_total[resumen_total.Mes_Orden.isin(meses)]
 resumen_total = resumen_total[resumen_total.Semana_Orden.isin(semanas)]
+
+
+# In[34]:
+
 
 venta = resumen_total["ORIGINAL_TOTAL_AMOUNT"]
 venta_nuevo = []
@@ -77,6 +95,22 @@ venta_ret_ecomm["Venta"] = np.round(venta_ret_ecomm["Venta"]/1000000,decimals =3
 venta_ret_ecomm["Participacion_ret"] = np.round(venta_ret_ecomm["Participacion_ret"]*100,decimals=1)
 venta_ret_ecomm["Customer Picked Up"] = np.round(venta_ret_ecomm["Customer Picked Up"]/1000000,decimals=3)
 
+venta_ret_ecomm_m = pd.pivot_table(resumen_total,index=["ENTRY_TYPE","Mes_Orden"],columns=["STATUS_NAME"],values=["Valor_Venta"],aggfunc=np.sum,fill_value =0)
+venta_ret_ecomm_m=venta_ret_ecomm_m.loc["CustomerOnWeb"]
+venta_ret_ecomm_m=venta_ret_ecomm_m[[("Valor_Venta","Customer Picked Up"),("Valor_Venta","Delivered To Customer"),("Valor_Venta","In Transit to Customer")]]
+venta_ret_ecomm_m=venta_ret_ecomm_m.reset_index()
+venta_ret_ecomm_m.columns=["Mes_Orden","Customer Picked Up","Delivered To Customer","In Transit to Customer"]
+venta_ret_ecomm_m = venta_ret_ecomm_m[venta_ret_ecomm_m.Mes_Orden.isin(meses)]
+
+venta_ret_ecomm_m["Venta"] = venta_ret_ecomm_m["Customer Picked Up"] + venta_ret_ecomm_m["Delivered To Customer"] +venta_ret_ecomm_m["In Transit to Customer"]
+venta_ret_ecomm_m["Participacion_ret"] = venta_ret_ecomm_m["Customer Picked Up"]/venta_ret_ecomm_m["Venta"]
+
+venta_ret_ecomm_m["Venta"] = np.round(venta_ret_ecomm_m["Venta"]/1000000,decimals =3)
+venta_ret_ecomm_m["Participacion_ret"] = np.round(venta_ret_ecomm_m["Participacion_ret"]*100,decimals=1)
+venta_ret_ecomm_m["Customer Picked Up"] = np.round(venta_ret_ecomm_m["Customer Picked Up"]/1000000,decimals=3)
+
+
+
 ticket_ret_ecomm = pd.pivot_table(resumen_total,index=["ENTRY_TYPE","Semana_Orden"],columns=["STATUS_NAME"],values =["Valor_Venta"],aggfunc =np.mean,fill_value=0)
 ticket_ret_ecomm = ticket_ret_ecomm.loc["CustomerOnWeb"]
 ticket_ret_ecomm = ticket_ret_ecomm[[("Valor_Venta","Customer Picked Up"),("Valor_Venta","Delivered To Customer")]]
@@ -86,11 +120,33 @@ ticket_ret_ecomm.columns=["Semana_Orden","Customer Picked Up","Delivered To Cust
 ticket_ret_ecomm["Customer Picked Up"] = np.round(ticket_ret_ecomm["Customer Picked Up"]/1000,decimals = 3)
 ticket_ret_ecomm["Delivered To Customer"] = np.round(ticket_ret_ecomm["Delivered To Customer"]/1000,decimals = 3)
 
+ticket_ret_ecomm_m= pd.pivot_table(resumen_total,index=["ENTRY_TYPE","Mes_Orden"],columns=["STATUS_NAME"],values =["Valor_Venta"],aggfunc =np.mean,fill_value=0)
+ticket_ret_ecomm_m = ticket_ret_ecomm_m.loc["CustomerOnWeb"]
+ticket_ret_ecomm_m = ticket_ret_ecomm_m[[("Valor_Venta","Customer Picked Up"),("Valor_Venta","Delivered To Customer")]]
+ticket_ret_ecomm_m = ticket_ret_ecomm_m.reset_index()
+ticket_ret_ecomm_m.columns=["Mes_Orden","Customer Picked Up","Delivered To Customer"]
+ticket_ret_ecomm_m = ticket_ret_ecomm_m[ticket_ret_ecomm_m.Mes_Orden.isin(meses)]
+
+ticket_ret_ecomm_m["Customer Picked Up"] = np.round(ticket_ret_ecomm_m["Customer Picked Up"]/1000,decimals = 3)
+ticket_ret_ecomm_m["Delivered To Customer"] = np.round(ticket_ret_ecomm_m["Delivered To Customer"]/1000,decimals = 3)
+
+
 ordenes_ret = pd.pivot_table(resumen_total,index=["ENTRY_TYPE","Semana_Orden"],columns=["STATUS_NAME"],values=["ORDER_NO"],aggfunc ="count",fill_value=0)
 ordenes_ret = ordenes_ret.loc["CustomerOnWeb"]
 ordenes_ret = ordenes_ret[[("ORDER_NO","Customer Picked Up")]]
 ordenes_ret = ordenes_ret.reset_index()
 ordenes_ret.columns = ["Semana_Orden","Customer Picked Up"]
+
+ordenes_ret_m = pd.pivot_table(resumen_total,index=["ENTRY_TYPE","Mes_Orden"],columns=["STATUS_NAME"],values=["ORDER_NO"],aggfunc ="count",fill_value=0)
+ordenes_ret_m= ordenes_ret_m.loc["CustomerOnWeb"]
+ordenes_ret_m = ordenes_ret_m[[("ORDER_NO","Customer Picked Up")]]
+ordenes_ret_m = ordenes_ret_m.reset_index()
+ordenes_ret_m.columns = ["Mes_Orden","Customer Picked Up"]
+ordenes_ret_m = ordenes_ret_m[ordenes_ret_m.Mes_Orden.isin(meses)]
+
+
+# In[35]:
+
 
 resumen_total_ciudad = resumen_total[~resumen_total.SHIPNODE_KEY.isnull()] ###eliminación registros sin sucursal asociada
 Sucursal_sucia = resumen_total_ciudad["SHIPNODE_KEY"]
@@ -162,6 +218,10 @@ for estado in estados_iniciales:                                   ###Categoriza
 
 resumen_total_ciudad["estado2"] = estado2 
 
+
+# In[36]:
+
+
 base_cancelados_call = resumen_total_ciudad[(resumen_total_ciudad["estado2"]=="Cancelado") & (resumen_total_ciudad.ORDER_NO.str.contains("COCC"))]
 base_cancelados_ecomm = resumen_total_ciudad[(resumen_total_ciudad["estado2"]=="Cancelado") & (resumen_total_ciudad.ORDER_NO.str.contains("CO1"))]
 
@@ -174,6 +234,10 @@ base_cancelados_call = pd.merge(base_cancelados_call,cancelados_call,left_on = "
 base_cancelados_ecomm = pd.merge(base_cancelados_ecomm,cancelados_ecomm,left_on ="ORDER_NO",right_on="ORDER_NO",how = "left")
 
 base_cancelados_total = pd.concat([base_cancelados_call,base_cancelados_ecomm],axis = 0)
+
+
+# In[37]:
+
 
 tabla_cancelados = pd.pivot_table(base_cancelados_total,index =["RESPONSABLE"],columns = ["Semana_Orden"],values =["ORDER_NO"],aggfunc = "count",fill_value = 0)
 tabla_cancelados = tabla_cancelados.reset_index()
@@ -207,6 +271,10 @@ porcentajes_ = pd.DataFrame(z,columns = semanas)
 porcentajes_.index = tabla_cancelados["RESPONSABLE"]
 porcentajes_ = porcentajes_.reset_index()
 porcentajes_.columns = tabla_cancelados.columns
+
+
+# In[38]:
+
 
 cancelados_dev_gral = pd.pivot_table(resumen_total_ciudad,index =["Semana_Orden"],columns = ["ENTRY_TYPE","estado2"],values =["ORDER_NO"],aggfunc = "count")
 cancelados_dev_gral[("ORDER_NO","Call Center","Porc Cancelados")] = cancelados_dev_gral[("ORDER_NO","Call Center","Cancelado")] / (cancelados_dev_gral[("ORDER_NO","Call Center","Cancelado")] + cancelados_dev_gral[("ORDER_NO","Call Center","Devolucion")] + cancelados_dev_gral[("ORDER_NO","Call Center","Orden")] ) 
@@ -246,6 +314,10 @@ participacionxciudad["Prt Bogotá"] = np.round(participacionxciudad["Prt Bogotá
 participacionxciudad["Prt Cali"] = np.round(participacionxciudad["Prt Cali"]*100,decimals =1)
 participacionxciudad["Prt Medellín"] = np.round(participacionxciudad["Prt Medellín"]*100,decimals =1)
 participacionxciudad["Prt Otras ciudades"] = np.round(participacionxciudad["Prt Otras ciudades"]*100,decimals =1)
+
+
+# In[39]:
+
 
 saltos_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"])
 for the_file in os.listdir(r"Saltos OMS Q3 2021"):
@@ -292,6 +364,9 @@ Porcentaje_saltos_tipo["Porc Saltos Quiebre"] = np.round(Porcentaje_saltos_tipo[
 Porcentaje_saltos_tipo["Porc Saltos Tiempo"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Tiempo"]*100,decimals =1)
 
 
+# In[40]:
+
+
 fmedica_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","ORDER_DATE","DOCUMENT_TYPE","ENTRY_TYPE","PRESCRIPTION_NAME","ENTERPRISE_KEY"])
 for the_file in os.listdir(r"F.Medica OMS"):
     
@@ -303,6 +378,10 @@ for the_file in os.listdir(r"F.Medica OMS"):
     print(the_file)
     fmedica_parcial=fmedica_parcial[["ORDER_NO","ORDER_HEADER_KEY","ORDER_DATE","DOCUMENT_TYPE","ENTRY_TYPE","PRESCRIPTION_NAME","ENTERPRISE_KEY"]]
     fmedica_total = pd.concat([fmedica_total,fmedica_parcial],axis=0)
+
+
+# In[41]:
+
 
 resumen_total_ciudad = pd.merge(resumen_total_ciudad,fmedica_total,left_on="ORDER_NO",right_on="ORDER_NO",how ="left")
 
@@ -322,6 +401,10 @@ resumen_total_ciudad =resumen_total_ciudad[resumen_total_ciudad.PRESCRIPTION_NAM
 
 resumen_total_ciudad = resumen_total_ciudad[resumen_total_ciudad["EXTN_ET_FULFILMENT"]=="N"]
 
+
+# In[42]:
+
+
 um_total = pd.DataFrame(columns=['numorden', 'iniciado', 'asignado', 'llego_punto', 'salio_punto', 'llego_cliente', 'finalizado', 'distancia_km', 'Finalizado Fallido', 'Tipo Fallido', 'Valor Servicio', 'Proveedor', 'Estado UM', 'Mes','Dia'])
 for the_file in os.listdir(r"UM Q3 21"):
     archivo_subida = os.path.join(r"UM Q3 21",the_file)   ###Importación de los archivos de última milla
@@ -330,6 +413,10 @@ for the_file in os.listdir(r"UM Q3 21"):
     um_total = pd.concat([um_total,um_parcial],axis=0)
     
 um_total["distancia_km"] = pd.to_numeric(um_total["distancia_km"],downcast = "integer")
+
+
+# In[43]:
+
 
 um_total["iniciado"] = pd.to_datetime(um_total["iniciado"], format="%Y-%m-%d %H:%M:%S")
 um_total["asignado"] = pd.to_datetime(um_total["asignado"], format="%Y-%m-%d %H:%M:%S")
@@ -405,16 +492,34 @@ df_tiempo_total.loc[df_tiempo_total["distancia_km"]<=6,"Categoria 6km"] = "Menor
 
 df_tiempo_total["Valor Servicio"] = pd.to_numeric(df_tiempo_total["Valor Servicio"],downcast = "integer")
 
+
+# ### Filtros para tiempos totales y cumplimientos
+
+# In[44]:
+
+
 df_tiempo_total_filtro = df_tiempo_total[(df_tiempo_total["TiempoTotal_min"]>=0) & (df_tiempo_total["TiempoTotal_min"]<=900)]
 df_tiempo_total_filtro_6km = df_tiempo_total_filtro[df_tiempo_total_filtro["distancia_km"]<=6]
 df_tiempo_total_filtro_reprog = df_tiempo_total_filtro[df_tiempo_total_filtro["Tiempo_Reprogramacion_min"]<=120]
 df_tiempo_total_filtro_reprog_6km= df_tiempo_total_filtro_reprog[df_tiempo_total_filtro_reprog["distancia_km"]<=6]
+
+
+# ### Tabla dinámica kilometraje participación
+
+# In[45]:
+
 
 pivot_6km = pd.pivot_table(df_tiempo_total_filtro, index =["CiudadB","Semana_Orden"],columns =["Categoria 6km"],values =["ORDER_NO"],aggfunc = "count")
 pivot_6km[("ORDER_NO","PorcMenor6km")] = pivot_6km[("ORDER_NO","Menor a 6km")] / (pivot_6km[("ORDER_NO","Menor a 6km")] + pivot_6km[("ORDER_NO","Mayor a 6km")] )
 pivot_6km=pivot_6km.reset_index()
 pivot_6km.columns=["Ciudad","Semana_Orden","Mayor6km","Menor6km","PorcMenor6km"]
 pivot_6km["PorcMenor6km"] = np.round(pivot_6km["PorcMenor6km"]*100,decimals=1)
+
+
+# ### Tablas Dinámicas - Tiempos Totales, Cumplimientos
+
+# In[46]:
+
 
 ###Generales filtro 900 min
 
@@ -573,6 +678,12 @@ cumpleUM40min_sinRp_6km = cumpleUM40min_sinRp_6km.reset_index()
 cumpleUM40min_sinRp_6km.columns = ["Ciudad","Semana_Orden","CumpleNextDay","CumpleSameDay","NoCumpleNextDay","NoCumpleSameDay","Cumplimiento"]
 cumpleUM40min_sinRp_6km["Cumplimiento"] = np.round(cumpleUM40min_sinRp_6km["Cumplimiento"]*100,decimals=1 )
 
+
+# ### Calculos Tiempos Alistamiento
+
+# In[47]:
+
+
 tiempos_total = pd.DataFrame(columns=["ORDER_NO","STATUS","STATUS_DATE","SHIPNODE_KEY"])
 for the_file in os.listdir(r"Tiempos OMS"):
     archivo_subida = os.path.join(r"Tiempos OMS",the_file) ###Importación de la base de tiempos
@@ -587,6 +698,10 @@ for the_file in os.listdir(r"Tiempos OMS"):
     print(the_file)
     tiempos_parcial = tiempos_parcial[["ORDER_NO","STATUS","STATUS_DATE","SHIPNODE_KEY"]]
     tiempos_total = pd.concat([tiempos_total,tiempos_parcial],axis=0)
+
+
+# In[48]:
+
 
 tiempos_total = tiempos_total[tiempos_total.STATUS.isin(["3350.1000","3350.1500.1000"])] ### Se toma solo ready for backroompick y packing complete
 
@@ -606,6 +721,10 @@ tiempos_total["STATUS_DATE_COL"] = STATUS_DATE_COL
 
 readyforback = tiempos_total[tiempos_total["STATUS"]=="3350.1000"]   ###df ready for backroompick
 packingcomplete = tiempos_total[tiempos_total["STATUS"]=="3350.1500.1000"] ###df packing complete
+
+
+# In[49]:
+
 
 readyforback= readyforback.sort_values("STATUS_DATE_COL",ascending=True) ### Más antiguo al mas reciente
 readyforbackprimeros= readyforback.drop_duplicates(subset = ["ORDER_NO"],keep = "first")
@@ -687,6 +806,10 @@ inicioalistamiento_mas_antiguo_final["CumplimientoAlistamiento_3(min)"] = "No Cu
 inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["TiempoAlistamiento_(min)"]<=10,"CumplimientoAlistamiento_10(min)"]="Cumple"
 inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["TiempoAlistamiento_(min)"]<=5,"CumplimientoAlistamiento_3(min)"]="Cumple"
 
+
+# In[50]:
+
+
 readyforbackultimos= readyforback.drop_duplicates(subset = ["ORDER_NO"],keep = "last")
 packingcomplete = packingcomplete.drop_duplicates()
 
@@ -765,6 +888,12 @@ inicioalistamiento_mas_reciente_final["CumplimientoAlistamiento_3(min)"] = "No C
 inicioalistamiento_mas_reciente_final.loc[inicioalistamiento_mas_reciente_final["TiempoAlistamiento_(min)"]<=10,"CumplimientoAlistamiento_10(min)"]="Cumple"
 inicioalistamiento_mas_reciente_final.loc[inicioalistamiento_mas_reciente_final["TiempoAlistamiento_(min)"]<=5,"CumplimientoAlistamiento_3(min)"]="Cumple"
 
+
+# ### Tablas Dinámicas Tiempos de alistamiento y cumplimiento alistamiento
+
+# In[51]:
+
+
 tiempo_alistamiento1er  = pd.pivot_table(inicioalistamiento_mas_antiguo_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE"],values = ["TiempoAlistamiento_(min)"],aggfunc =np.mean)
 tiempo_alistamiento1er=tiempo_alistamiento1er.reset_index()
 tiempo_alistamiento1er.columns = ["Ciudad","Semana_Orden","Alistamiento_NextDay","Alistamiento_SameDay"]
@@ -785,6 +914,12 @@ cumplimiento3min = cumplimiento3min.reset_index()
 cumplimiento3min.columns = ["Ciudad","Semana_Orden","NextDayCumple","NextDayNoCumple","SameDayCumple","SameDayNoCumple","Cumplimiento3min"]
 cumplimiento3min= cumplimiento3min[["Ciudad","Semana_Orden","Cumplimiento3min"]]
 cumplimiento3min["Cumplimiento3min"] = np.round(cumplimiento3min["Cumplimiento3min"]*100,decimals=1)
+
+
+# ### Cobro de domicilios
+
+# In[52]:
+
 
 total_cobro = pd.DataFrame(columns = ["Fecha_linea","Sucursal","Codigo","Canal","Valor"])
 for the_file in os.listdir(r"CobroDomicilios"):
@@ -812,6 +947,7 @@ cobro_canal_s=cobro_canal_s.reset_index()
 cobro_canal_s.columns =["Semana_Cobro","Domifacil","Mostrador","OMS","Total_Cobro"]
 cobro_canal_s = cobro_canal_s[cobro_canal_s.Semana_Cobro.isin(semanas)]
 
+
 cobro_canal_m = pd.pivot_table(total_cobro,index =["Mes_Cobro"],columns =["Canal"],values = ["Valor"],aggfunc = np.sum,fill_value=0)
 cobro_canal_m[("Valor","Total_Cobro")] =  cobro_canal_m[("Valor","Domifacil")] + cobro_canal_m[("Valor","Mostrador")] + cobro_canal_m[("Valor","OMS")]
 cobro_canal_m=cobro_canal_m.reset_index()
@@ -826,6 +962,9 @@ cobro_canal_m["Domifacil"] =np.round(cobro_canal_m["Domifacil"]/1000000,decimals
 cobro_canal_m["Mostrador"] =np.round(cobro_canal_m["Mostrador"]/1000000,decimals=3)
 cobro_canal_m["OMS"] = np.round(cobro_canal_m["OMS"]/1000000,decimals=3)
 cobro_canal_m["Total_Cobro"] = np.round(cobro_canal_m["Total_Cobro"]/1000000,decimals=3)
+
+
+# In[53]:
 
 
 bogotaprimerRFBP= tiempo_alistamiento1er[tiempo_alistamiento1er["Ciudad"]=="Bogotá"]
@@ -952,6 +1091,10 @@ cali_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Cali"]
 medellin_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Medellín"]
 otrasciudades_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Otras ciudades"]
 
+
+# In[58]:
+
+
 ###Figura participación por ciudad
 
 fig_participacion = go.Figure(data = [go.Bar(name ="Bogotá",x = participacionxciudad["Semana_Orden"], y= participacionxciudad["Prt Bogotá"],text =participacionxciudad["Prt Bogotá"],marker_color = '#00B050'),
@@ -961,7 +1104,7 @@ fig_participacion = go.Figure(data = [go.Bar(name ="Bogotá",x = participacionxc
                                       go.Bar(name = "Otras ciudades", x = participacionxciudad["Semana_Orden"],y =participacionxciudad["Prt Otras ciudades"], text = participacionxciudad["Prt Otras ciudades"],marker_color ='#FD7335')
 ])
 
-fig_participacion.update_layout(barmode ='stack',margin = dict(l=20, r=20, t=40, b=20),legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),paper_bgcolor = 'rgb(232,230,230)')
+fig_participacion.update_layout(barmode ='stack',margin = dict(l=20, r=20, t=40, b=20),legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),uniformtext=dict(mode = 'hide',minsize=10),paper_bgcolor = 'rgb(232,230,230)')
 fig_participacion.update_yaxes(title ="(%)")
 fig_participacion.update_xaxes(dtick = 1, title = "Semanas")
 fig_participacion.update_traces(textfont_size=10)
@@ -1667,6 +1810,15 @@ fig_ret_venta.update_yaxes(title_text = "(%)",showgrid = False, secondary_y = Tr
 fig_ret_venta.update_traces(textfont_size=10)
 
 
+###Retiro en tieda participación vs ecommerce Mes
+fig_ret_venta_m = make_subplots(specs=[[{"secondary_y": True}]])
+fig_ret_venta_m.add_trace(go.Bar(name="Venta Ret",x=venta_ret_ecomm_m["Mes_Orden"],y=venta_ret_ecomm_m["Customer Picked Up"],text=venta_ret_ecomm_m["Customer Picked Up"],marker_color = 'rgb(0,176,80)'),secondary_y=False)
+fig_ret_venta_m.add_trace(go.Scatter(x=venta_ret_ecomm_m["Mes_Orden"],y=venta_ret_ecomm_m["Participacion_ret"],name="participacion ret", mode = "lines+markers+text",text = venta_ret_ecomm_m["Participacion_ret"],textposition = "middle center",line=dict(color = 'rgb(225,192,0)', width=2)),secondary_y=True)
+fig_ret_venta_m.update_layout(yaxis = dict(showgrid=False),margin = dict(l=20, r=20, t=40, b=20),legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),paper_bgcolor = 'rgb(232,230,230)')
+fig_ret_venta_m.update_xaxes(dtick = 1,title ="Meses")
+fig_ret_venta_m.update_yaxes(title_text = "($) COP Millones",showgrid = False,secondary_y = False)
+fig_ret_venta_m.update_yaxes(title_text = "(%)",showgrid = False, secondary_y = True)
+fig_ret_venta_m.update_traces(textfont_size=10)
 
 
 ###Retiro en tienda ticket vs ecommerce
@@ -1681,6 +1833,16 @@ fig_ticket_ecomm.update_yaxes(title_text ="Cantidad ordenes (RET)",showgrid = Fa
 fig_ticket_ecomm.update_traces(textfont_size=10)
 
 
+###Retiro en tienda ticket vs ecommerce Mes
+fig_ticket_ecomm_m = make_subplots(specs=[[{"secondary_y": True}]])
+fig_ticket_ecomm_m.add_trace(go.Bar(name="Ticket Ret",x=ticket_ret_ecomm_m["Mes_Orden"],y=ticket_ret_ecomm_m["Customer Picked Up"],text=ticket_ret_ecomm_m["Customer Picked Up"],marker_color = 'rgb(0,176,80)'),secondary_y=False)
+fig_ticket_ecomm_m.add_trace(go.Bar(name="Ticket Ecomm",x=ticket_ret_ecomm_m["Mes_Orden"],y=ticket_ret_ecomm_m["Delivered To Customer"],text=ticket_ret_ecomm_m["Delivered To Customer"],marker_color = 'rgba(0,176,80,0.2)'),secondary_y=False)
+fig_ticket_ecomm_m.add_trace(go.Scatter(x=ordenes_ret_m["Mes_Orden"],y=ordenes_ret_m["Customer Picked Up"],name="ordenes ret",mode = "lines+markers+text",text = ordenes_ret_m["Customer Picked Up"],textposition = "middle center",line=dict(color = 'rgb(225,192,0)', width=2)),secondary_y=True)
+fig_ticket_ecomm_m.update_layout(barmode = 'group',margin = dict(l=20, r=20, t=40, b=20),legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),paper_bgcolor = 'rgb(232,230,230)')
+fig_ticket_ecomm_m.update_xaxes(dtick = 1,title ="Meses")
+fig_ticket_ecomm_m.update_yaxes(title_text ="($) COP Miles",showgrid = False,secondary_y=False)
+fig_ticket_ecomm_m.update_yaxes(title_text ="Cantidad ordenes (RET)",showgrid = False,secondary_y=True)
+fig_ticket_ecomm_m.update_traces(textfont_size=10)
 
 
 app = Dash(__name__)
@@ -1721,16 +1883,16 @@ app.layout = html.Div([
                     dcc.Graph(id="TotalBog",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
             html.Div([
                 html.H3("Barranquilla"),
-                    dcc.Graph(id="TotalBquilla",figure = fig_Ttotal_nofiltro_bquilla)],className = 'create_container2'),
+                    dcc.Graph(id="TotalBog2",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
             html.Div([
                 html.H3("Cali"),
-                dcc.Graph(id="TotalCali",figure = fig_Ttotal_nofiltro_cali)],className = 'create_container2'),
+                dcc.Graph(id="TotalBog3",figure = fig_Ttotal_nofiltro_bog)],className = 'create_container2'),
             html.Div([
                 html.H3("Medellín"),
-                dcc.Graph(id="TotalMed",figure = fig_Ttotal_nofiltro_med)], className = 'create_container2'),
+                dcc.Graph(id="TotalBog4",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2'),
             html.Div([
                 html.H3("Otras ciudades"),
-                dcc.Graph(id="TotalOtros",figure = fig_Ttotal_nofiltro_otros)], className = 'create_container2')
+                dcc.Graph(id="TotalBog5",figure = fig_Ttotal_nofiltro_bog)], className = 'create_container2')
             
  
         ],className='contenedor-graficos')
@@ -2147,10 +2309,38 @@ app.layout = html.Div([
                 dcc.Graph(id="ticket_ret",figure = fig_ticket_ecomm)],className = 'create_container2')
                 
             ],className="contenedor-graficos-2col")
+        ]),
+    
+    ###Retiro en tienda ticket mes
+    
+    html.Div([
+        html.Div([
+        html.H2("Retiro en tienda")],className ='titulo-seccion'),
+        html.Div([
+            html.Div([
+                html.H3("Participación venta retiro en tienda vs venta ecommerce"),
+                dcc.Graph(id="participa_ret_mes",figure = fig_ret_venta_m)],className = 'create_container2'),
+            html.Div([
+                html.H3("Ticket Promedio Retiro en tienda vs ecommerce"),
+                dcc.Graph(id="ticket_ret_mes",figure = fig_ticket_ecomm_m)],className = 'create_container2')
+                
+            ],className="contenedor-graficos-2col")
         ])
+    
 ])
    
 if __name__ == '__main__':
     app.run_server(debug=False)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
 
 
