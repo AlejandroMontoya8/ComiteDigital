@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[15]:
 
 
 import pandas as pd
@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
-# In[2]:
+# In[16]:
 
 
 resumen_total = pd.DataFrame(columns=["ORDER_NO","ORDER_DATE","ENTRY_TYPE","LEVEL_OF_SERVICE","STATUS_NAME","EXTN_ORG_REQ_SHIP_DATE","EXTN_ET_FULFILMENT","SHIPNODE_KEY"])
@@ -31,7 +31,7 @@ for the_file in os.listdir(r"Resumen OMS Q3 2021"):
 resumen_total = resumen_total.drop_duplicates(subset = ["ORDER_NO","STATUS_NAME"])
 
 
-# In[3]:
+# In[17]:
 
 
 resumen_total["ORDER_DATE"] = pd.to_datetime(resumen_total["ORDER_DATE"],format="%Y-%m-%d %H:%M:%S")
@@ -63,14 +63,14 @@ resumen_total["Hora_Orden"] = Hora_Orden
 resumen_total["Anio_Orden"] = Anio_Orden
 
 
-meses = [9,10,11]
-semanas = [41,42,43,44,45,46,47,48]
+meses = [9,10,11,12]
+semanas = [42,43,44,45,46,47,48,49]
 
 #resumen_total = resumen_total[resumen_total.Mes_Orden.isin(meses)]
 resumen_total = resumen_total[resumen_total.Semana_Orden.isin(semanas)]
 
 
-# In[4]:
+# In[18]:
 
 
 venta = resumen_total["ORIGINAL_TOTAL_AMOUNT"]
@@ -147,7 +147,7 @@ ordenes_ret_m.columns = ["Mes_Orden","Customer Picked Up"]
 ordenes_ret_m = ordenes_ret_m[ordenes_ret_m.Mes_Orden.isin(meses)]
 
 
-# In[5]:
+# In[19]:
 
 
 resumen_total_ciudad = resumen_total[~resumen_total.SHIPNODE_KEY.isnull()] ###eliminación registros sin sucursal asociada
@@ -221,7 +221,7 @@ for estado in estados_iniciales:                                   ###Categoriza
 resumen_total_ciudad["estado2"] = estado2 
 
 
-# In[6]:
+# In[20]:
 
 
 base_cancelados_call = resumen_total_ciudad[(resumen_total_ciudad["estado2"]=="Cancelado") & (resumen_total_ciudad.ORDER_NO.str.contains("COCC"))]
@@ -238,7 +238,7 @@ base_cancelados_ecomm = pd.merge(base_cancelados_ecomm,cancelados_ecomm,left_on 
 base_cancelados_total = pd.concat([base_cancelados_call,base_cancelados_ecomm],axis = 0)
 
 
-# In[7]:
+# In[21]:
 
 
 tabla_cancelados = pd.pivot_table(base_cancelados_total,index =["RESPONSABLE"],columns = ["Semana_Orden"],values =["ORDER_NO"],aggfunc = "count",fill_value = 0)
@@ -275,7 +275,7 @@ porcentajes_ = porcentajes_.reset_index()
 porcentajes_.columns = tabla_cancelados.columns
 
 
-# In[8]:
+# In[22]:
 
 
 cancelados_dev_gral = pd.pivot_table(resumen_total_ciudad,index =["Semana_Orden"],columns = ["ENTRY_TYPE","estado2"],values =["ORDER_NO"],aggfunc = "count")
@@ -318,7 +318,7 @@ participacionxciudad["Prt Medellín"] = np.round(participacionxciudad["Prt Medel
 participacionxciudad["Prt Otras ciudades"] = np.round(participacionxciudad["Prt Otras ciudades"]*100,decimals =1)
 
 
-# In[9]:
+# In[23]:
 
 
 saltos_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"])
@@ -366,7 +366,7 @@ Porcentaje_saltos_tipo["Porc Saltos Quiebre"] = np.round(Porcentaje_saltos_tipo[
 Porcentaje_saltos_tipo["Porc Saltos Tiempo"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Tiempo"]*100,decimals =1)
 
 
-# In[10]:
+# In[24]:
 
 
 fmedica_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","ORDER_DATE","DOCUMENT_TYPE","ENTRY_TYPE","PRESCRIPTION_NAME","ENTERPRISE_KEY"])
@@ -382,7 +382,7 @@ for the_file in os.listdir(r"F.Medica OMS"):
     fmedica_total = pd.concat([fmedica_total,fmedica_parcial],axis=0)
 
 
-# In[11]:
+# In[25]:
 
 
 resumen_total_ciudad = pd.merge(resumen_total_ciudad,fmedica_total,left_on="ORDER_NO",right_on="ORDER_NO",how ="left")
@@ -406,7 +406,7 @@ resumen_total_ciudad = resumen_total_ciudad[resumen_total_ciudad["EXTN_ET_FULFIL
 resumen_total_ciudad = resumen_total_ciudad.drop_duplicates()
 
 
-# In[12]:
+# In[28]:
 
 
 um_total = pd.DataFrame(columns=['numorden', 'iniciado', 'asignado', 'llego_punto', 'salio_punto', 'llego_cliente', 'finalizado', 'distancia_km', 'Finalizado Fallido', 'Tipo Fallido', 'Valor Servicio', 'Proveedor', 'Estado UM', 'Mes','Dia'])
@@ -419,7 +419,7 @@ for the_file in os.listdir(r"UM Q3 21"):
 um_total["distancia_km"] = pd.to_numeric(um_total["distancia_km"],downcast = "integer")
 
 
-# In[13]:
+# In[29]:
 
 
 um_total["iniciado"] = pd.to_datetime(um_total["iniciado"], format="%Y-%m-%d %H:%M:%S")
@@ -501,7 +501,7 @@ df_tiempo_total["Valor Servicio"] = pd.to_numeric(df_tiempo_total["Valor Servici
 
 # ### Filtros para tiempos totales y cumplimientos
 
-# In[14]:
+# In[30]:
 
 
 df_tiempo_total_filtro = df_tiempo_total[(df_tiempo_total["TiempoTotal_min"]>=0) & (df_tiempo_total["TiempoTotal_min"]<=900)]
@@ -512,7 +512,7 @@ df_tiempo_total_filtro_reprog_6km= df_tiempo_total_filtro_reprog[df_tiempo_total
 
 # ### Tabla dinámica kilometraje participación
 
-# In[15]:
+# In[31]:
 
 
 pivot_6km = pd.pivot_table(df_tiempo_total_filtro, index =["CiudadB","Semana_Orden"],columns =["Categoria 6km"],values =["ORDER_NO"],aggfunc = "count")
@@ -524,7 +524,7 @@ pivot_6km["PorcMenor6km"] = np.round(pivot_6km["PorcMenor6km"]*100,decimals=1)
 
 # ### Tablas Dinámicas - Tiempos Totales, Cumplimientos
 
-# In[16]:
+# In[32]:
 
 
 ###Generales filtro 900 min
@@ -722,7 +722,7 @@ tiendas.sort()
 
 # ### Calculos Tiempos Alistamiento
 
-# In[17]:
+# In[33]:
 
 
 tiempos_total = pd.DataFrame(columns=["ORDER_NO","STATUS","STATUS_DATE","SHIPNODE_KEY"])
@@ -741,7 +741,7 @@ for the_file in os.listdir(r"Tiempos OMS"):
     tiempos_total = pd.concat([tiempos_total,tiempos_parcial],axis=0)
 
 
-# In[18]:
+# In[34]:
 
 
 tiempos_total = tiempos_total[tiempos_total.STATUS.isin(["3350.1000","3350.1500.1000"])] ### Se toma solo ready for backroompick y packing complete
@@ -764,7 +764,7 @@ readyforback = tiempos_total[tiempos_total["STATUS"]=="3350.1000"]   ###df ready
 packingcomplete = tiempos_total[tiempos_total["STATUS"]=="3350.1500.1000"] ###df packing complete
 
 
-# In[19]:
+# In[35]:
 
 
 readyforback= readyforback.sort_values("STATUS_DATE_COL",ascending=True) ### Más antiguo al mas reciente
@@ -801,6 +801,9 @@ inicioalistamiento_mas_antiguo.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE'
 
 inicioalistamiento_mas_antiguo = pd.merge(inicioalistamiento_mas_antiguo,packingcomplete,left_on="ORDER_NO",right_on="ORDER_NO",how= "left") 
 
+
+inicioalistamiento_mas_antiguo = inicioalistamiento_mas_antiguo.drop_duplicates()
+
 inicioalistamiento_mas_antiguo=inicioalistamiento_mas_antiguo[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
        'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE', 'EXTN_ET_FULFILMENT',
        'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden', 'Mes_Orden',
@@ -825,6 +828,8 @@ inicioalistamiento_mas_antiguo.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE'
        'Tiempo_Reprogramacion_min', 'CumpleTiempoTotal1h',
        'CumpleTiempoTotal90min', 'CumpleTiempoUM','RFBRP_DATE','PackingComplete']
 
+
+
 inicioalistamiento_mas_antiguo_final = inicioalistamiento_mas_antiguo[(~inicioalistamiento_mas_antiguo.RFBRP_DATE.isnull())&(~inicioalistamiento_mas_antiguo.PackingComplete.isnull())]
 
 
@@ -848,7 +853,7 @@ inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["T
 inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["TiempoAlistamiento_(min)"]<=5,"CumplimientoAlistamiento_3(min)"]="Cumple"
 
 
-# In[20]:
+# In[36]:
 
 
 readyforbackultimos= readyforback.drop_duplicates(subset = ["ORDER_NO"],keep = "last")
@@ -883,6 +888,8 @@ inicioalistamiento_mas_reciente.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE
 
 inicioalistamiento_mas_reciente = pd.merge(inicioalistamiento_mas_reciente,packingcomplete,left_on="ORDER_NO",right_on="ORDER_NO",how= "left") 
 
+
+
 inicioalistamiento_mas_reciente=inicioalistamiento_mas_reciente[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
        'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE', 'EXTN_ET_FULFILMENT',
        'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden', 'Mes_Orden',
@@ -907,7 +914,11 @@ inicioalistamiento_mas_reciente.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE
        'Tiempo_Reprogramacion_min', 'CumpleTiempoTotal1h',
        'CumpleTiempoTotal90min', 'CumpleTiempoUM','RFBRP_DATE','PackingComplete']
 
+
+
 inicioalistamiento_mas_reciente_final = inicioalistamiento_mas_reciente[(~inicioalistamiento_mas_reciente.RFBRP_DATE.isnull())&(~inicioalistamiento_mas_reciente.PackingComplete.isnull())]
+
+inicioalistamiento_mas_reciente_final = inicioalistamiento_mas_reciente_final.drop_duplicates()
 
 
 inicioalistamiento_mas_reciente_final["Alistamiento_a"] = inicioalistamiento_mas_reciente_final["PackingComplete"] - inicioalistamiento_mas_reciente_final["RFBRP_DATE"]
@@ -932,7 +943,7 @@ inicioalistamiento_mas_reciente_final.loc[inicioalistamiento_mas_reciente_final[
 
 # ### Tablas Dinámicas Tiempos de alistamiento y cumplimiento alistamiento
 
-# In[21]:
+# In[37]:
 
 
 tiempo_alistamiento1er  = pd.pivot_table(inicioalistamiento_mas_antiguo_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE"],values = ["TiempoAlistamiento_(min)"],aggfunc =np.mean)
@@ -949,7 +960,7 @@ tiempo_alistamiento1er["Alistamiento_SameDay"] = np.round(tiempo_alistamiento1er
 tiempo_alistamientoult["Alistamiento_SameDay"] = np.round(tiempo_alistamientoult["Alistamiento_SameDay"],decimals=0)
 
 
-cumplimiento3min = pd.pivot_table(inicioalistamiento_mas_antiguo_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE","CumplimientoAlistamiento_3(min)"],values =["ORDER_NO"],aggfunc ="count")
+cumplimiento3min = pd.pivot_table(inicioalistamiento_mas_reciente_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE","CumplimientoAlistamiento_3(min)"],values =["ORDER_NO"],aggfunc ="count")
 cumplimiento3min[("ORDER_NO","SameDay","Cumplimiento")] = cumplimiento3min[("ORDER_NO","SameDay","Cumple")] / (cumplimiento3min[("ORDER_NO","SameDay","Cumple")] + cumplimiento3min[("ORDER_NO","SameDay","No Cumple")] )
 cumplimiento3min = cumplimiento3min.reset_index()
 cumplimiento3min.columns = ["Ciudad","Semana_Orden","NextDayCumple","NextDayNoCumple","SameDayCumple","SameDayNoCumple","Cumplimiento3min"]
@@ -957,9 +968,46 @@ cumplimiento3min= cumplimiento3min[["Ciudad","Semana_Orden","Cumplimiento3min"]]
 cumplimiento3min["Cumplimiento3min"] = np.round(cumplimiento3min["Cumplimiento3min"]*100,decimals=1)
 
 
+# In[38]:
+
+
+reprog_caida_tiendacerrada = inicioalistamiento_mas_reciente_final[inicioalistamiento_mas_reciente_final["LEVEL_OF_SERVICE"]=="SameDay"]
+reprog_caida_tiendacerrada["AlistamientoMayor_2h"] = "No"
+reprog_caida_tiendacerrada.loc[reprog_caida_tiendacerrada["TiempoAlistamiento_(min)"]>=120,"AlistamientoMayor_2h"] = "Si"
+tiempos_reprog_stock= pd.pivot_table(reprog_caida_tiendacerrada,index = ["CiudadB"],columns = ["Semana_Orden","AlistamientoMayor_2h"], values = ["ORDER_NO"],aggfunc = "count",fill_value = 0)
+tiempos_reprog_stock = tiempos_reprog_stock.reset_index()
+
+array_semanas = np.empty(len(semanas))
+lista_array_semanas = [None]* len(array_semanas)
+j = 0
+
+for elemento in semanas:
+    calculo_semana = tiempos_reprog_stock[('ORDER_NO', elemento, 'Si')] / (tiempos_reprog_stock[('ORDER_NO', elemento, 'No')] + tiempos_reprog_stock[('ORDER_NO', elemento, 'Si')])
+    lista_array_semanas[j] = calculo_semana
+    j = j + 1
+    
+lista_array_semanas = np.transpose(lista_array_semanas)
+df_tienda_cerrada = pd.DataFrame(lista_array_semanas,columns = semanas)
+
+df_tienda_cerrada = np.round(df_tienda_cerrada*100,decimals = 1)
+
+df_tienda_cerrada.index = tiempos_reprog_stock["CiudadB"]
+df_tienda_cerrada=df_tienda_cerrada.reset_index()
+
+titulos_semana = []
+titulos_semana.append("Ciudad")
+for elemento in semanas:
+    elemento_no = "No - Sem " + str(elemento)
+    elemento_si = "Si - Sem " + str(elemento)
+    titulos_semana.append(elemento_no)
+    titulos_semana.append(elemento_si)
+    
+tiempos_reprog_stock.columns = titulos_semana
+
+
 # ### Cobro de domicilios
 
-# In[22]:
+# In[40]:
 
 
 total_cobro = pd.DataFrame(columns = ["Fecha_linea","Sucursal","Codigo","Canal","Valor"])
@@ -1005,7 +1053,7 @@ cobro_canal_m["OMS"] = np.round(cobro_canal_m["OMS"]/1000000,decimals=3)
 cobro_canal_m["Total_Cobro"] = np.round(cobro_canal_m["Total_Cobro"]/1000000,decimals=3)
 
 
-# In[23]:
+# In[41]:
 
 
 bogotaprimerRFBP= tiempo_alistamiento1er[tiempo_alistamiento1er["Ciudad"]=="Bogotá"]
@@ -1133,7 +1181,7 @@ medellin_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Medellí
 otrasciudades_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Otras ciudades"]
 
 
-# In[24]:
+# In[42]:
 
 
 ###Figura participación por ciudad
@@ -1734,6 +1782,22 @@ fig_cumple3min_otras.update_xaxes(dtick=1,title ="Semanas")
 fig_cumple3min_otras.update_traces(textfont_size=10)
 
 
+###Figura % ordenes por fuera horario tienda
+fig_ordenes_tienda_cerrada = go.Figure(data = [go.Table(header = dict(values = list(df_tienda_cerrada.columns),font_size = 10,fill_color = 'lightgray'),
+                                                       cells = dict(values = np.transpose(df_tienda_cerrada.values), font_size = 10, fill_color = 'rgba(242,242,242)'))])
+
+fig_ordenes_tienda_cerrada.update_layout(margin = dict(l=20,r=20,t=20,b=20),paper_bgcolor = 'rgb(232,230,230)')
+fig_ordenes_tienda_cerrada.update_layout(width=1215, height=333)
+
+
+###Figura contidad ordenes por fuera horario tienda
+fig_ordenes_tienda_cerrada_porc = go.Figure(data = [go.Table(header = dict(values = list(tiempos_reprog_stock.columns),font_size = 10,fill_color = 'lightgray'),
+                                                       cells = dict(values = np.transpose(tiempos_reprog_stock.values), font_size = 10, fill_color = 'rgba(242,242,242)'))])
+
+fig_ordenes_tienda_cerrada_porc.update_layout(margin = dict(l=20,r=20,t=20,b=20),paper_bgcolor = 'rgb(232,230,230)')
+fig_ordenes_tienda_cerrada_porc.update_layout(width=1215, height=333)
+
+
 ### Figuras cancelados y devoluciones
 
 fig_canc_gral = go.Figure()
@@ -2258,6 +2322,25 @@ app.layout = html.Div([
             ],className='contenedor-graficos')
         ]),
     
+    ###%Ordenes mayor a 120 min alistamiento
+    html.Div([
+        html.Div([
+        html.H2("Porcentaje de ordenes asignadas a tienda cerrada")],className ='titulo-seccion'),
+        html.Div([
+            dcc.Graph(id="fuera_horario_tienda1",figure = fig_ordenes_tienda_cerrada)],className = 'create_container2')
+        ]),
+    
+    
+    ###CAntidad de ordenes mayor a 120 min alistamiento
+    html.Div([
+        html.Div([
+        html.H2("Cantidad de ordenes asignadas a tienda cerrada")],className ='titulo-seccion'),
+        html.Div([
+            dcc.Graph(id="fuera_horario_tienda2",figure = fig_ordenes_tienda_cerrada_porc )],className = 'create_container2')
+    
+            
+        ]),
+       
     
     ###Porcentaje de cancelados general
     html.Div([
@@ -2482,38 +2565,18 @@ if __name__ == '__main__':
     app.run_server(debug=False)
 
 
-# In[ ]:
+# In[44]:
 
 
-df_tiempo_total_filtro.to_excel(r"C:\Users\nathalia.gutierrez\Documents\GitHub\ComiteDigital\tiempo_total.xlsx")
-inicioalistamiento_mas_antiguo_final.to_excel(r"C:\Users\nathalia.gutierrez\Documents\GitHub\ComiteDigital\alistamiento_1rfbp.xlsx")
-inicioalistamiento_mas_reciente_final.to_excel(r"C:\Users\nathalia.gutierrez\Documents\GitHub\ComiteDigital\alistamiento_ultrfbp.xlsx")
-
-
-# In[ ]:
-
-
-df_tiempo_total = pd.merge(df_tiempo_total,packingcomplete,left_on="ORDER_NO",right_on = "ORDER_NO",how = "left")
+df_tiempo_total_filtro.to_excel(r"C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\ComiteDigital\tiempo_total.xlsx")
+inicioalistamiento_mas_antiguo_final.to_excel(r"C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\ComiteDigital\alistamiento_1rfbp.xlsx")
+inicioalistamiento_mas_reciente_final.to_excel(r"C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\ComiteDigital\alistamiento_ultrfbp.xlsx")
 
 
 # In[ ]:
 
 
-df_tiempo_total = df_tiempo_total[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
-       'ORIGINAL_TOTAL_AMOUNT', 'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE',
-       'EXTN_ET_FULFILMENT', 'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden',
-       'Mes_Orden', 'Semana_Orden', 'DiaSemana_Orden', 'Hora_Orden',
-       'SHIPNODE_KEY2', 'COD_SUC', 'CIUDAD_MUNICIPIO', 'GERENTE DE ZONA',
-       'Localidad', 'CiudadB', 'numorden', 'iniciado', 'asignado',
-       'llego_punto', 'salio_punto', 'llego_cliente', 'distancia_km',
-       'Finalizado Fallido', 'Valor Servicio', 'Proveedor', 'Estado UM',
-       'numorden2', 'TiempoTotal', 'TiempoTotal_min', 'TiempoUM',
-       'TiempoUM_min', 'Tiempo_Reprogramacion', 'Tiempo_Reprogramacion_min',
-       'CumpleTiempoTotal1h', 'CumpleTiempoTotal90min', 'CumpleTiempoUM',
-       'Categoria 6km',
-       'STATUS_DATE_COL']]
 
-df_tiempo_total.to_excel(r"C:\Users\luis.montoya\Downloads\TiemposResumen.xlsx")
 
 
 # In[ ]:
