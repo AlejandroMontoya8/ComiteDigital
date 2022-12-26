@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[14]:
+# In[1]:
 
 
 import pandas as pd
@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
-# In[15]:
+# In[3]:
 
 
 resumen_total = pd.DataFrame(columns=["ORDER_NO","ORDER_DATE","ENTRY_TYPE","LEVEL_OF_SERVICE","STATUS_NAME","EXTN_ORG_REQ_SHIP_DATE","EXTN_ET_FULFILMENT","SHIPNODE_KEY"])
@@ -28,10 +28,8 @@ for the_file in os.listdir(r"Resumen OMS Q3 2021"):
     resumen_parcial=resumen_parcial[["ORDER_NO","ORDER_DATE","ENTRY_TYPE","ORDER_TYPE","LEVEL_OF_SERVICE","EXTN_RUN_RUT_NIT","ORIGINAL_TOTAL_AMOUNT","STATUS_NAME","EXTN_ORG_REQ_SHIP_DATE","EXTN_ET_FULFILMENT","SHIPNODE_KEY"]]
     resumen_total = pd.concat([resumen_total,resumen_parcial],axis=0)
 
-resumen_total = resumen_total.drop_duplicates(subset = ["ORDER_NO","STATUS_NAME"])
 
-
-# In[16]:
+# In[4]:
 
 
 resumen_total["ORDER_DATE"] = pd.to_datetime(resumen_total["ORDER_DATE"],format="%Y-%m-%d %H:%M:%S")
@@ -63,14 +61,14 @@ resumen_total["Hora_Orden"] = Hora_Orden
 resumen_total["Anio_Orden"] = Anio_Orden
 
 
-meses = [9,10,11,12]
-semanas = [43,44,45,46,47,48,49,50]
+meses = [9,10,11]
+semanas = [45,46,47,48,49,50,51]
 
 #resumen_total = resumen_total[resumen_total.Mes_Orden.isin(meses)]
 resumen_total = resumen_total[resumen_total.Semana_Orden.isin(semanas)]
 
 
-# In[17]:
+# In[5]:
 
 
 venta = resumen_total["ORIGINAL_TOTAL_AMOUNT"]
@@ -147,7 +145,7 @@ ordenes_ret_m.columns = ["Mes_Orden","Customer Picked Up"]
 ordenes_ret_m = ordenes_ret_m[ordenes_ret_m.Mes_Orden.isin(meses)]
 
 
-# In[18]:
+# In[6]:
 
 
 resumen_total_ciudad = resumen_total[~resumen_total.SHIPNODE_KEY.isnull()] ###eliminación registros sin sucursal asociada
@@ -221,7 +219,7 @@ for estado in estados_iniciales:                                   ###Categoriza
 resumen_total_ciudad["estado2"] = estado2 
 
 
-# In[19]:
+# In[8]:
 
 
 base_cancelados_call = resumen_total_ciudad[(resumen_total_ciudad["estado2"]=="Cancelado") & (resumen_total_ciudad.ORDER_NO.str.contains("COCC"))]
@@ -238,7 +236,7 @@ base_cancelados_ecomm = pd.merge(base_cancelados_ecomm,cancelados_ecomm,left_on 
 base_cancelados_total = pd.concat([base_cancelados_call,base_cancelados_ecomm],axis = 0)
 
 
-# In[20]:
+# In[9]:
 
 
 tabla_cancelados = pd.pivot_table(base_cancelados_total,index =["RESPONSABLE"],columns = ["Semana_Orden"],values =["ORDER_NO"],aggfunc = "count",fill_value = 0)
@@ -275,7 +273,7 @@ porcentajes_ = porcentajes_.reset_index()
 porcentajes_.columns = tabla_cancelados.columns
 
 
-# In[21]:
+# In[10]:
 
 
 cancelados_dev_gral = pd.pivot_table(resumen_total_ciudad,index =["Semana_Orden"],columns = ["ENTRY_TYPE","estado2"],values =["ORDER_NO"],aggfunc = "count")
@@ -318,7 +316,7 @@ participacionxciudad["Prt Medellín"] = np.round(participacionxciudad["Prt Medel
 participacionxciudad["Prt Otras ciudades"] = np.round(participacionxciudad["Prt Otras ciudades"]*100,decimals =1)
 
 
-# In[22]:
+# In[11]:
 
 
 saltos_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","SHIPMENT_KEY","SHIPNODE_KEY","STATUS","STATUS_DATE","DELIVERY_METHOD","ORDER_TYPE","EXTN_SHORT","ASSIGNED_TO_USER_ID"])
@@ -366,7 +364,7 @@ Porcentaje_saltos_tipo["Porc Saltos Quiebre"] = np.round(Porcentaje_saltos_tipo[
 Porcentaje_saltos_tipo["Porc Saltos Tiempo"] = np.round(Porcentaje_saltos_tipo["Porc Saltos Tiempo"]*100,decimals =1)
 
 
-# In[23]:
+# In[12]:
 
 
 fmedica_total = pd.DataFrame(columns=["ORDER_NO","ORDER_HEADER_KEY","ORDER_DATE","DOCUMENT_TYPE","ENTRY_TYPE","PRESCRIPTION_NAME","ENTERPRISE_KEY"])
@@ -382,7 +380,7 @@ for the_file in os.listdir(r"F.Medica OMS"):
     fmedica_total = pd.concat([fmedica_total,fmedica_parcial],axis=0)
 
 
-# In[24]:
+# In[13]:
 
 
 resumen_total_ciudad = pd.merge(resumen_total_ciudad,fmedica_total,left_on="ORDER_NO",right_on="ORDER_NO",how ="left")
@@ -403,10 +401,8 @@ resumen_total_ciudad =resumen_total_ciudad[resumen_total_ciudad.PRESCRIPTION_NAM
 
 resumen_total_ciudad = resumen_total_ciudad[resumen_total_ciudad["EXTN_ET_FULFILMENT"]=="N"]
 
-resumen_total_ciudad = resumen_total_ciudad.drop_duplicates()
 
-
-# In[25]:
+# In[16]:
 
 
 um_total = pd.DataFrame(columns=['numorden', 'iniciado', 'asignado', 'llego_punto', 'salio_punto', 'llego_cliente', 'finalizado', 'distancia_km', 'Finalizado Fallido', 'Tipo Fallido', 'Valor Servicio', 'Proveedor', 'Estado UM', 'Mes','Dia'])
@@ -419,7 +415,7 @@ for the_file in os.listdir(r"UM Q3 21"):
 um_total["distancia_km"] = pd.to_numeric(um_total["distancia_km"],downcast = "integer")
 
 
-# In[26]:
+# In[17]:
 
 
 um_total["iniciado"] = pd.to_datetime(um_total["iniciado"], format="%Y-%m-%d %H:%M:%S")
@@ -454,8 +450,6 @@ resumen_total_tiempos = resumen_total_tiempos[['ORDER_NO', 'ORDER_DATE', 'ENTRY_
        'llego_punto', 'salio_punto', 'llego_cliente',
        'distancia_km', 'Finalizado Fallido', 'Valor Servicio',
        'Proveedor', 'Estado UM', 'numorden2']]
-
-resumen_total_tiempos = resumen_total_tiempos.drop_duplicates()
 
 df_tiempo_total = resumen_total_tiempos[(~resumen_total_tiempos.llego_cliente.isnull() )& (~resumen_total_tiempos.iniciado.isnull() )]
 
@@ -501,7 +495,7 @@ df_tiempo_total["Valor Servicio"] = pd.to_numeric(df_tiempo_total["Valor Servici
 
 # ### Filtros para tiempos totales y cumplimientos
 
-# In[27]:
+# In[18]:
 
 
 df_tiempo_total_filtro = df_tiempo_total[(df_tiempo_total["TiempoTotal_min"]>=0) & (df_tiempo_total["TiempoTotal_min"]<=900)]
@@ -512,7 +506,7 @@ df_tiempo_total_filtro_reprog_6km= df_tiempo_total_filtro_reprog[df_tiempo_total
 
 # ### Tabla dinámica kilometraje participación
 
-# In[28]:
+# In[19]:
 
 
 pivot_6km = pd.pivot_table(df_tiempo_total_filtro, index =["CiudadB","Semana_Orden"],columns =["Categoria 6km"],values =["ORDER_NO"],aggfunc = "count")
@@ -524,7 +518,7 @@ pivot_6km["PorcMenor6km"] = np.round(pivot_6km["PorcMenor6km"]*100,decimals=1)
 
 # ### Tablas Dinámicas - Tiempos Totales, Cumplimientos
 
-# In[29]:
+# In[20]:
 
 
 ###Generales filtro 900 min
@@ -685,44 +679,9 @@ cumpleUM40min_sinRp_6km.columns = ["Ciudad","Semana_Orden","CumpleNextDay","Cump
 cumpleUM40min_sinRp_6km["Cumplimiento"] = np.round(cumpleUM40min_sinRp_6km["Cumplimiento"]*100,decimals=1 )
 
 
-
-###Cumplimiento 1h y 40 min por sucursal sin RP
-TiempoTotal_promedio_sinRp_suc = pd.pivot_table(df_tiempo_total_filtro_reprog,index = ["COD_SUC","Semana_Orden"],columns = ["LEVEL_OF_SERVICE","ENTRY_TYPE"],values = ["TiempoTotal_min"],aggfunc = np.mean)
-TiempoUM_promedio_sinRp_suc = pd.pivot_table(df_tiempo_total_filtro_reprog,index = ["COD_SUC","Semana_Orden"],columns = ["LEVEL_OF_SERVICE","ENTRY_TYPE"],values = ["TiempoUM_min"],aggfunc = np.mean)
-
-TiempoTotal_promedio_sinRp_suc =TiempoTotal_promedio_sinRp_suc.reset_index()
-TiempoTotal_promedio_sinRp_suc.columns = ["COD_SUC","Semana_Orden","NextDayCall","NextDayEcomm","SameDayCall","SameDayEcomm"]
-TiempoUM_promedio_sinRp_suc =TiempoUM_promedio_sinRp_suc.reset_index()
-TiempoUM_promedio_sinRp_suc.columns = ["COD_SUC","Semana_Orden","NextDayCall","NextDayEcomm","SameDayCall","SameDayEcomm"]
-
-TiempoTotal_promedio_sinRp_suc["SameDayCall"] = np.round(TiempoTotal_promedio_sinRp_suc["SameDayCall"],decimals =0)
-TiempoTotal_promedio_sinRp_suc["SameDayEcomm"] = np.round(TiempoTotal_promedio_sinRp_suc["SameDayEcomm"],decimals =0)
-TiempoUM_promedio_sinRp_suc["SameDayCall"] = np.round(TiempoUM_promedio_sinRp_suc["SameDayCall"],decimals =0)
-TiempoUM_promedio_sinRp_suc["SameDayEcomm"] = np.round(TiempoUM_promedio_sinRp_suc["SameDayEcomm"],decimals =0)
-
-
-cumpleTiempoTotal1h_sinRp_suc = pd.pivot_table(df_tiempo_total_filtro_reprog,index= ["COD_SUC","Semana_Orden"],columns = ["CumpleTiempoTotal1h","LEVEL_OF_SERVICE"], values = ["ORDER_NO"],aggfunc = "count")
-cumpleTiempoTotal1h_sinRp_suc[("ORDER_NO","Cumplimiento","SameDay")] = cumpleTiempoTotal1h_sinRp_suc[("ORDER_NO","Cumple","SameDay")]/(cumpleTiempoTotal1h_sinRp_suc[("ORDER_NO","Cumple","SameDay")] + cumpleTiempoTotal1h_sinRp_suc[("ORDER_NO","No Cumple","SameDay")]) 
-cumpleUM40min_sinRp_suc = pd.pivot_table(df_tiempo_total_filtro_reprog,index =["COD_SUC","Semana_Orden"],columns =["CumpleTiempoUM","LEVEL_OF_SERVICE"],values = ["ORDER_NO"],aggfunc = "count")
-cumpleUM40min_sinRp_suc[("ORDER_NO","Cumplimiento","SameDay")] = cumpleUM40min_sinRp_suc[("ORDER_NO","Cumple","SameDay")] /(cumpleUM40min_sinRp_suc[("ORDER_NO","Cumple","SameDay")]  + cumpleUM40min_sinRp_suc[("ORDER_NO","No Cumple","SameDay")] ) 
-
-
-cumpleTiempoTotal1h_sinRp_suc = cumpleTiempoTotal1h_sinRp_suc.reset_index()
-cumpleTiempoTotal1h_sinRp_suc.columns =["COD_SUC","Semana_Orden","CumpleNextDay","CumpleSameDay","NoCumpleNextDay","NoCumpleSameDay","Cumplimiento"]
-cumpleUM40min_sinRp_suc = cumpleUM40min_sinRp_suc.reset_index()
-cumpleUM40min_sinRp_suc.columns = ["COD_SUC","Semana_Orden","CumpleNextDay","CumpleSameDay","NoCumpleNextDay","NoCumpleSameDay","Cumplimiento"]
-
-cumpleTiempoTotal1h_sinRp_suc["Cumplimiento"] = np.round(cumpleTiempoTotal1h_sinRp_suc["Cumplimiento"]*100,decimals=1)
-cumpleUM40min_sinRp_suc["Cumplimiento"] = np.round(cumpleUM40min_sinRp_suc["Cumplimiento"]*100,decimals =1)
-
-tiendas = df_tiempo_total_filtro_reprog["COD_SUC"]
-tiendas = list(tiendas.unique())
-tiendas.sort()
-
-
 # ### Calculos Tiempos Alistamiento
 
-# In[30]:
+# In[21]:
 
 
 tiempos_total = pd.DataFrame(columns=["ORDER_NO","STATUS","STATUS_DATE","SHIPNODE_KEY"])
@@ -741,7 +700,7 @@ for the_file in os.listdir(r"Tiempos OMS"):
     tiempos_total = pd.concat([tiempos_total,tiempos_parcial],axis=0)
 
 
-# In[31]:
+# In[22]:
 
 
 tiempos_total = tiempos_total[tiempos_total.STATUS.isin(["3350.1000","3350.1500.1000"])] ### Se toma solo ready for backroompick y packing complete
@@ -764,7 +723,7 @@ readyforback = tiempos_total[tiempos_total["STATUS"]=="3350.1000"]   ###df ready
 packingcomplete = tiempos_total[tiempos_total["STATUS"]=="3350.1500.1000"] ###df packing complete
 
 
-# In[32]:
+# In[23]:
 
 
 readyforback= readyforback.sort_values("STATUS_DATE_COL",ascending=True) ### Más antiguo al mas reciente
@@ -801,9 +760,6 @@ inicioalistamiento_mas_antiguo.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE'
 
 inicioalistamiento_mas_antiguo = pd.merge(inicioalistamiento_mas_antiguo,packingcomplete,left_on="ORDER_NO",right_on="ORDER_NO",how= "left") 
 
-
-inicioalistamiento_mas_antiguo = inicioalistamiento_mas_antiguo.drop_duplicates()
-
 inicioalistamiento_mas_antiguo=inicioalistamiento_mas_antiguo[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
        'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE', 'EXTN_ET_FULFILMENT',
        'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden', 'Mes_Orden',
@@ -828,8 +784,6 @@ inicioalistamiento_mas_antiguo.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE'
        'Tiempo_Reprogramacion_min', 'CumpleTiempoTotal1h',
        'CumpleTiempoTotal90min', 'CumpleTiempoUM','RFBRP_DATE','PackingComplete']
 
-
-
 inicioalistamiento_mas_antiguo_final = inicioalistamiento_mas_antiguo[(~inicioalistamiento_mas_antiguo.RFBRP_DATE.isnull())&(~inicioalistamiento_mas_antiguo.PackingComplete.isnull())]
 
 
@@ -853,7 +807,7 @@ inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["T
 inicioalistamiento_mas_antiguo_final.loc[inicioalistamiento_mas_antiguo_final["TiempoAlistamiento_(min)"]<=5,"CumplimientoAlistamiento_3(min)"]="Cumple"
 
 
-# In[33]:
+# In[24]:
 
 
 readyforbackultimos= readyforback.drop_duplicates(subset = ["ORDER_NO"],keep = "last")
@@ -888,8 +842,6 @@ inicioalistamiento_mas_reciente.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE
 
 inicioalistamiento_mas_reciente = pd.merge(inicioalistamiento_mas_reciente,packingcomplete,left_on="ORDER_NO",right_on="ORDER_NO",how= "left") 
 
-
-
 inicioalistamiento_mas_reciente=inicioalistamiento_mas_reciente[['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE', 'LEVEL_OF_SERVICE',
        'STATUS_NAME', 'EXTN_ORG_REQ_SHIP_DATE', 'EXTN_ET_FULFILMENT',
        'SHIPNODE_KEY_x', 'ORDER_DATE_COL', 'Dia_Orden', 'Mes_Orden',
@@ -914,11 +866,7 @@ inicioalistamiento_mas_reciente.columns = ['ORDER_NO', 'ORDER_DATE', 'ENTRY_TYPE
        'Tiempo_Reprogramacion_min', 'CumpleTiempoTotal1h',
        'CumpleTiempoTotal90min', 'CumpleTiempoUM','RFBRP_DATE','PackingComplete']
 
-
-
 inicioalistamiento_mas_reciente_final = inicioalistamiento_mas_reciente[(~inicioalistamiento_mas_reciente.RFBRP_DATE.isnull())&(~inicioalistamiento_mas_reciente.PackingComplete.isnull())]
-
-inicioalistamiento_mas_reciente_final = inicioalistamiento_mas_reciente_final.drop_duplicates()
 
 
 inicioalistamiento_mas_reciente_final["Alistamiento_a"] = inicioalistamiento_mas_reciente_final["PackingComplete"] - inicioalistamiento_mas_reciente_final["RFBRP_DATE"]
@@ -943,7 +891,7 @@ inicioalistamiento_mas_reciente_final.loc[inicioalistamiento_mas_reciente_final[
 
 # ### Tablas Dinámicas Tiempos de alistamiento y cumplimiento alistamiento
 
-# In[34]:
+# In[25]:
 
 
 tiempo_alistamiento1er  = pd.pivot_table(inicioalistamiento_mas_antiguo_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE"],values = ["TiempoAlistamiento_(min)"],aggfunc =np.mean)
@@ -960,7 +908,7 @@ tiempo_alistamiento1er["Alistamiento_SameDay"] = np.round(tiempo_alistamiento1er
 tiempo_alistamientoult["Alistamiento_SameDay"] = np.round(tiempo_alistamientoult["Alistamiento_SameDay"],decimals=0)
 
 
-cumplimiento3min = pd.pivot_table(inicioalistamiento_mas_reciente_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE","CumplimientoAlistamiento_3(min)"],values =["ORDER_NO"],aggfunc ="count")
+cumplimiento3min = pd.pivot_table(inicioalistamiento_mas_antiguo_final,index =["CiudadB","Semana_Orden"],columns = ["LEVEL_OF_SERVICE","CumplimientoAlistamiento_3(min)"],values =["ORDER_NO"],aggfunc ="count")
 cumplimiento3min[("ORDER_NO","SameDay","Cumplimiento")] = cumplimiento3min[("ORDER_NO","SameDay","Cumple")] / (cumplimiento3min[("ORDER_NO","SameDay","Cumple")] + cumplimiento3min[("ORDER_NO","SameDay","No Cumple")] )
 cumplimiento3min = cumplimiento3min.reset_index()
 cumplimiento3min.columns = ["Ciudad","Semana_Orden","NextDayCumple","NextDayNoCumple","SameDayCumple","SameDayNoCumple","Cumplimiento3min"]
@@ -968,46 +916,9 @@ cumplimiento3min= cumplimiento3min[["Ciudad","Semana_Orden","Cumplimiento3min"]]
 cumplimiento3min["Cumplimiento3min"] = np.round(cumplimiento3min["Cumplimiento3min"]*100,decimals=1)
 
 
-# In[35]:
-
-
-reprog_caida_tiendacerrada = inicioalistamiento_mas_reciente_final[inicioalistamiento_mas_reciente_final["LEVEL_OF_SERVICE"]=="SameDay"]
-reprog_caida_tiendacerrada["AlistamientoMayor_2h"] = "No"
-reprog_caida_tiendacerrada.loc[reprog_caida_tiendacerrada["TiempoAlistamiento_(min)"]>=120,"AlistamientoMayor_2h"] = "Si"
-tiempos_reprog_stock= pd.pivot_table(reprog_caida_tiendacerrada,index = ["CiudadB"],columns = ["Semana_Orden","AlistamientoMayor_2h"], values = ["ORDER_NO"],aggfunc = "count",fill_value = 0)
-tiempos_reprog_stock = tiempos_reprog_stock.reset_index()
-
-array_semanas = np.empty(len(semanas))
-lista_array_semanas = [None]* len(array_semanas)
-j = 0
-
-for elemento in semanas:
-    calculo_semana = tiempos_reprog_stock[('ORDER_NO', elemento, 'Si')] / (tiempos_reprog_stock[('ORDER_NO', elemento, 'No')] + tiempos_reprog_stock[('ORDER_NO', elemento, 'Si')])
-    lista_array_semanas[j] = calculo_semana
-    j = j + 1
-    
-lista_array_semanas = np.transpose(lista_array_semanas)
-df_tienda_cerrada = pd.DataFrame(lista_array_semanas,columns = semanas)
-
-df_tienda_cerrada = np.round(df_tienda_cerrada*100,decimals = 1)
-
-df_tienda_cerrada.index = tiempos_reprog_stock["CiudadB"]
-df_tienda_cerrada=df_tienda_cerrada.reset_index()
-
-titulos_semana = []
-titulos_semana.append("Ciudad")
-for elemento in semanas:
-    elemento_no = "No - Sem " + str(elemento)
-    elemento_si = "Si - Sem " + str(elemento)
-    titulos_semana.append(elemento_no)
-    titulos_semana.append(elemento_si)
-    
-tiempos_reprog_stock.columns = titulos_semana
-
-
 # ### Cobro de domicilios
 
-# In[36]:
+# In[26]:
 
 
 total_cobro = pd.DataFrame(columns = ["Fecha_linea","Sucursal","Codigo","Canal","Valor"])
@@ -1053,7 +964,7 @@ cobro_canal_m["OMS"] = np.round(cobro_canal_m["OMS"]/1000000,decimals=3)
 cobro_canal_m["Total_Cobro"] = np.round(cobro_canal_m["Total_Cobro"]/1000000,decimals=3)
 
 
-# In[37]:
+# In[27]:
 
 
 bogotaprimerRFBP= tiempo_alistamiento1er[tiempo_alistamiento1er["Ciudad"]=="Bogotá"]
@@ -1181,7 +1092,7 @@ medellin_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Medellí
 otrasciudades_Total = TiempoTotal_promedio[TiempoTotal_promedio["Ciudad"]== "Otras ciudades"]
 
 
-# In[38]:
+# In[ ]:
 
 
 ###Figura participación por ciudad
@@ -1210,7 +1121,7 @@ fig_Ttotal_nofiltro_bog = go.Figure()
 fig_Ttotal_nofiltro_bog.add_trace(go.Scatter(x=bogota_Total["Semana_Orden"],y=bogota_Total["SameDayCall"],name ="Call Center",mode="lines+markers+text",text=bogota_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_bog.add_trace(go.Scatter(x=bogota_Total["Semana_Orden"],y=bogota_Total["SameDayEcomm"],name ="Ecommerce",mode="lines+markers+text",text=bogota_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_bog.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_bog.update_yaxes(range=[30,130], title ="Min")
+fig_Ttotal_nofiltro_bog.update_yaxes(range=[20,100], title ="Min")
 fig_Ttotal_nofiltro_bog.update_xaxes(dtick = 1, title = "Semanas")
 fig_Ttotal_nofiltro_bog.update_traces(textfont_size=10)
 
@@ -1218,7 +1129,7 @@ fig_Ttotal_nofiltro_bquilla = go.Figure()
 fig_Ttotal_nofiltro_bquilla.add_trace(go.Scatter(x=bquilla_Total["Semana_Orden"],y=bquilla_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=bquilla_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_bquilla.add_trace(go.Scatter(x=bquilla_Total["Semana_Orden"],y=bquilla_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=bquilla_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_bquilla.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)',uniformtext_minsize=18)
-fig_Ttotal_nofiltro_bquilla.update_yaxes(range=[30,130], title ="Min")
+fig_Ttotal_nofiltro_bquilla.update_yaxes(range=[20,100], title ="Min")
 fig_Ttotal_nofiltro_bquilla.update_xaxes(dtick = 1, title ="Semanas")
 fig_Ttotal_nofiltro_bquilla.update_traces(textfont_size=10)
 
@@ -1226,7 +1137,7 @@ fig_Ttotal_nofiltro_cali = go.Figure()
 fig_Ttotal_nofiltro_cali.add_trace(go.Scatter(x=cali_Total["Semana_Orden"],y=cali_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=cali_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_cali.add_trace(go.Scatter(x=cali_Total["Semana_Orden"],y=cali_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=cali_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_cali.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_cali.update_yaxes(range=[30,130],title="Min")
+fig_Ttotal_nofiltro_cali.update_yaxes(range=[20,100],title="Min")
 fig_Ttotal_nofiltro_cali.update_xaxes(dtick = 1, title ="Semanas")
 fig_Ttotal_nofiltro_cali.update_traces(textfont_size=10)
 
@@ -1234,7 +1145,7 @@ fig_Ttotal_nofiltro_med = go.Figure()
 fig_Ttotal_nofiltro_med.add_trace(go.Scatter(x=medellin_Total["Semana_Orden"],y=medellin_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=medellin_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_med.add_trace(go.Scatter(x=medellin_Total["Semana_Orden"],y=medellin_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=medellin_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_med.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_med.update_yaxes(range=[30,130],title="Min")
+fig_Ttotal_nofiltro_med.update_yaxes(range=[20,100],title="Min")
 fig_Ttotal_nofiltro_med.update_xaxes(dtick = 1, title ="Semanas")
 fig_Ttotal_nofiltro_med.update_traces(textfont_size=10)
 
@@ -1243,7 +1154,7 @@ fig_Ttotal_nofiltro_otros = go.Figure()
 fig_Ttotal_nofiltro_otros.add_trace(go.Scatter(x=otrasciudades_Total["Semana_Orden"],y=otrasciudades_Total["SameDayCall"],name="Call Center",mode="lines+markers+text",text=otrasciudades_Total["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
 fig_Ttotal_nofiltro_otros.add_trace(go.Scatter(x=otrasciudades_Total["Semana_Orden"],y=otrasciudades_Total["SameDayEcomm"],name="Ecommerce",mode="lines+markers+text",text=otrasciudades_Total["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
 fig_Ttotal_nofiltro_otros.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_Ttotal_nofiltro_otros.update_yaxes(range=[30,130], title = "Min")
+fig_Ttotal_nofiltro_otros.update_yaxes(range=[20,100], title = "Min")
 fig_Ttotal_nofiltro_otros.update_xaxes(dtick = 1, title = "Semanas")
 fig_Ttotal_nofiltro_otros.update_traces(textfont_size=10)
 
@@ -1782,22 +1693,6 @@ fig_cumple3min_otras.update_xaxes(dtick=1,title ="Semanas")
 fig_cumple3min_otras.update_traces(textfont_size=10)
 
 
-###Figura % ordenes por fuera horario tienda
-fig_ordenes_tienda_cerrada = go.Figure(data = [go.Table(header = dict(values = list(df_tienda_cerrada.columns),font_size = 10,fill_color = 'lightgray'),
-                                                       cells = dict(values = np.transpose(df_tienda_cerrada.values), font_size = 10, fill_color = 'rgba(242,242,242)'))])
-
-fig_ordenes_tienda_cerrada.update_layout(margin = dict(l=20,r=20,t=20,b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_ordenes_tienda_cerrada.update_layout(width=1215, height=333)
-
-
-###Figura contidad ordenes por fuera horario tienda
-fig_ordenes_tienda_cerrada_porc = go.Figure(data = [go.Table(header = dict(values = list(tiempos_reprog_stock.columns),font_size = 10,fill_color = 'lightgray'),
-                                                       cells = dict(values = np.transpose(tiempos_reprog_stock.values), font_size = 10, fill_color = 'rgba(242,242,242)'))])
-
-fig_ordenes_tienda_cerrada_porc.update_layout(margin = dict(l=20,r=20,t=20,b=20),paper_bgcolor = 'rgb(232,230,230)')
-fig_ordenes_tienda_cerrada_porc.update_layout(width=1215, height=333)
-
-
 ### Figuras cancelados y devoluciones
 
 fig_canc_gral = go.Figure()
@@ -1997,7 +1892,7 @@ app.layout = html.Div([
                 dcc.Graph(id="TotalCali",figure = fig_Ttotal_nofiltro_med)], className = 'create_container2'),
             html.Div([
                 html.H3("Otras ciudades"),
-                dcc.Graph(id="TotalOtros",figure = fig_Ttotal_nofiltro_otros)], className = 'create_container2')
+                dcc.Graph(id="TotalOtros",figure = fig_Cumpletotal_nofiltro_otros)], className = 'create_container2')
             
  
         ],className='contenedor-graficos')
@@ -2322,25 +2217,6 @@ app.layout = html.Div([
             ],className='contenedor-graficos')
         ]),
     
-    ###%Ordenes mayor a 120 min alistamiento
-    html.Div([
-        html.Div([
-        html.H2("Porcentaje de ordenes asignadas a tienda cerrada")],className ='titulo-seccion'),
-        html.Div([
-            dcc.Graph(id="fuera_horario_tienda1",figure = fig_ordenes_tienda_cerrada)],className = 'create_container2')
-        ]),
-    
-    
-    ###CAntidad de ordenes mayor a 120 min alistamiento
-    html.Div([
-        html.Div([
-        html.H2("Cantidad de ordenes asignadas a tienda cerrada")],className ='titulo-seccion'),
-        html.Div([
-            dcc.Graph(id="fuera_horario_tienda2",figure = fig_ordenes_tienda_cerrada_porc )],className = 'create_container2')
-    
-            
-        ]),
-       
     
     ###Porcentaje de cancelados general
     html.Div([
@@ -2453,114 +2329,10 @@ app.layout = html.Div([
                 dcc.Graph(id="ticket_ret_mes",figure = fig_ticket_ecomm_m)],className = 'create_container2')
                 
             ],className="contenedor-graficos-2col")
-        ]),
+        ])
     
-    
-    ###Seguimiento tiempos tiendas
-    html.Div([
-        html.Div([
-        html.H2("Seguimiento entregas por punto de venta")],className ='titulo-seccion'),
-        html.Div([
-                dcc.Dropdown(options = tiendas,value = "101",id ="filtro_tiendas" )
-            ]),
-        html.Div([
-            html.Div([
-                html.H3("Tiempo Total Promedio"),
-                dcc.Graph(id="ttotal_prom")],className = 'create_container2'),
-            html.Div([
-                html.H3("Tiempo Total Cumplimiento Menor a 1 hora"),
-                dcc.Graph(id ="ttotal_cumple")],className = 'create_container2')
-            ],className = "contenedor-graficos-2col")
-            ]),
-    
-    html.Div([
-        html.Div([
-            html.Div([
-                html.H3("Tiempo UM Promedio"),
-                dcc.Graph(id="tum_prom")],className = 'create_container2'),
-            html.Div([
-                html.H3("Tiempo UM Cumplimiento Menor a 40 min"),
-                dcc.Graph(id ="tum_cumple")],className = 'create_container2')
-            ],className = "contenedor-graficos-2col")
-            ])
-
-            
 ])
-
-@app.callback(
-    Output("ttotal_prom","figure"),
-    Input("filtro_tiendas","value")
-
-)
-def filtro_ttotal_prom(value):
-    
-    ttotal_prom_filtro = TiempoTotal_promedio_sinRp_suc[TiempoTotal_promedio_sinRp_suc["COD_SUC"]==value]
-    
-    fig_Ttotal_sinRp_suc = go.Figure()
-    fig_Ttotal_sinRp_suc.add_trace(go.Scatter(x=ttotal_prom_filtro["Semana_Orden"],y=ttotal_prom_filtro["SameDayCall"],name ="Call Center",mode="lines+markers+text",text=ttotal_prom_filtro["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
-    fig_Ttotal_sinRp_suc.add_trace(go.Scatter(x=ttotal_prom_filtro["Semana_Orden"],y=ttotal_prom_filtro["SameDayEcomm"],name ="Ecommerce",mode="lines+markers+text",text=ttotal_prom_filtro["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
-    fig_Ttotal_sinRp_suc.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-    fig_Ttotal_sinRp_suc.update_yaxes(range=[0,80], title ="Min")
-    fig_Ttotal_sinRp_suc.update_xaxes(dtick = 1, title = "Semanas")
-    fig_Ttotal_sinRp_suc.update_traces(textfont_size=10)
-    
-    return fig_Ttotal_sinRp_suc
-
-@app.callback(
-    Output("tum_prom","figure"),
-    Input("filtro_tiendas","value")
-)
-def filtro_tum_prom(value):
-    
-    tum_prom_filtro = TiempoUM_promedio_sinRp_suc[TiempoUM_promedio_sinRp_suc["COD_SUC"]==value]
-    
-    fig_Tum_sinRp_suc = go.Figure()
-    fig_Tum_sinRp_suc.add_trace(go.Scatter(x=tum_prom_filtro["Semana_Orden"],y=tum_prom_filtro["SameDayCall"],name ="Call Center",mode="lines+markers+text",text=tum_prom_filtro["SameDayCall"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
-    fig_Tum_sinRp_suc.add_trace(go.Scatter(x=tum_prom_filtro["Semana_Orden"],y=tum_prom_filtro["SameDayEcomm"],name ="Ecommerce",mode="lines+markers+text",text=tum_prom_filtro["SameDayEcomm"],textposition="middle center",line=dict(color='rgb(255,192,0)',width=2)))
-    fig_Tum_sinRp_suc.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-    fig_Tum_sinRp_suc.update_yaxes(range=[0,70], title ="Min")
-    fig_Tum_sinRp_suc.update_xaxes(dtick = 1, title = "Semanas")
-    fig_Tum_sinRp_suc.update_traces(textfont_size=10)
-    
-    return fig_Tum_sinRp_suc
-
-
-@app.callback(
-    Output("ttotal_cumple","figure"),
-    Input("filtro_tiendas","value")
-)
-def filtro_ttotal_cumple(value):
-    
-    ttotal_cumple_filtro = cumpleTiempoTotal1h_sinRp_suc[cumpleTiempoTotal1h_sinRp_suc["COD_SUC"]==value]
-    
-    fig_Cumpletotal_sinRP_suc = go.Figure()
-    fig_Cumpletotal_sinRP_suc.add_trace(go.Scatter(x=ttotal_cumple_filtro["Semana_Orden"],y=ttotal_cumple_filtro["Cumplimiento"],name ="1 hora",mode="lines+markers+text",text=ttotal_cumple_filtro["Cumplimiento"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
-    fig_Cumpletotal_sinRP_suc.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-    fig_Cumpletotal_sinRP_suc.update_yaxes(range=[40,100],title ="(%)")
-    fig_Cumpletotal_sinRP_suc.update_xaxes(dtick=1,title ="Semanas")
-    fig_Cumpletotal_sinRP_suc.update_traces(textfont_size=10)
-    
-    return fig_Cumpletotal_sinRP_suc
-
-@app.callback(
-    Output("tum_cumple","figure"),
-    Input("filtro_tiendas","value")
-)
-def filtro_tum_cumple(value):
-    
-    tum_cumple_filtro = cumpleUM40min_sinRp_suc[cumpleUM40min_sinRp_suc["COD_SUC"]==value]
-    
-    fig_CumpleUM_sinRP_suc = go.Figure()
-    fig_CumpleUM_sinRP_suc.add_trace(go.Scatter(x=tum_cumple_filtro["Semana_Orden"],y=tum_cumple_filtro["Cumplimiento"],name ="1 hora",mode="lines+markers+text",text=tum_cumple_filtro["Cumplimiento"],textposition="middle right",line=dict(color='rgb(0,176,80)',width=2)))
-    fig_CumpleUM_sinRP_suc.update_layout(legend = dict( orientation = "h", yanchor = "bottom",xanchor ="center",y=1,x=0.5),margin = dict(l=20, r=20, t=40, b=20),paper_bgcolor = 'rgb(232,230,230)')
-    fig_CumpleUM_sinRP_suc.update_yaxes(range=[40,100],title ="(%)")
-    fig_CumpleUM_sinRP_suc.update_xaxes(dtick=1,title ="Semanas")
-    fig_CumpleUM_sinRP_suc.update_traces(textfont_size=10)
-    
-    return fig_CumpleUM_sinRP_suc
-    
-    
-    
+   
 if __name__ == '__main__':
     app.run_server(debug=False)
 
@@ -2568,15 +2340,9 @@ if __name__ == '__main__':
 # In[ ]:
 
 
-df_tiempo_total_filtro.to_excel(r"C:\Users\nathalia.gutierrez\Documents\GitHub\ComiteDigital\tiempo_total.xlsx")
-inicioalistamiento_mas_antiguo_final.to_excel(r"C:\Users\nathalia.gutierrez\Documents\GitHub\ComiteDigital\alistamiento_1rfbp.xlsx")
-inicioalistamiento_mas_reciente_final.to_excel(r"C:\Users\nathalia.gutierrez\Documents\GitHub\ComiteDigital\alistamiento_ultrfbp.xlsx")
-
-
-# In[ ]:
-
-
-
+df_tiempo_total_filtro.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\tiempo_total.xlsx")
+inicioalistamiento_mas_antiguo_final.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\alistamiento_1rfbp.xlsx")
+inicioalistamiento_mas_reciente_final.to_excel("C:\Users\nataly.garcia\Documents\GitHub\ComiteDigital\alistamiento_ultrfbp.xlsx")
 
 
 # In[ ]:
